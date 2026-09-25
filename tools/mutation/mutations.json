@@ -55,5 +55,13 @@
   "from": "\tnotBefore := now.Truncate(time.Second).Add(-clockSkew)",
   "to": "\tnotBefore := now.Add(-clockSkew)",
   "pkg": "./controller"
+ },
+ {
+  "check": "issuer: notBefore stays inside the API's 5-minute window",
+  "file": "issuer/issuer.go",
+  "test": "TestAGrantedRequestIsIssuedOnce",
+  "pkg": "./controller",
+  "from": "const clockSkew = time.Minute",
+  "to": "const clockSkew = 5 * time.Minute"
  }
 ]
