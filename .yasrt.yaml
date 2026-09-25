@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+#
+# First release 0.1.0: the signer is not in production yet, and 1.0.0 is kept
+# for the version that has answered real requests.
+versioning:
+  initial: 0.1.0

@@ -1,14 +1,47 @@
 # SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
 # SPDX-License-Identifier: Apache-2.0
 #
-# No `stages:` and no `workflow:` here: declaring either REPLACES what the
-# composed template supplies, and a job in an undeclared stage produces zero
-# jobs and no error. Every job below uses a stage the template declares.
+# The release follows yasrt/cli, the shape the yasrt component recommends: the
+# binaries are built, signed and uploaded on the main pipeline BEFORE the tag
+# is cut, so a tag always names an artefact that exists (GDG-44 is what the
+# other order costs). devops/images/pod-cert-signer fetches them from the
+# package registry by version.
+#
+# `stages:` is declared, and it REPLACES the composed list: this is a superset
+# of what the go template uses plus version/build/release. A job in a stage
+# missing here produces zero jobs and no error.
+stages: [quick, test, version, build, release, sign]
+
+variables:
+  GO_IMAGE: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
+  GOTOOLCHAIN: local
+  GOFLAGS: -mod=readonly
+  GOPATH: ${CI_PROJECT_DIR}/.go
 
 include:
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/composed-default-pipelines/go@2
     inputs:
       working-directory: '.'
+      go-image: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/release-tools/yasrt@2
+    inputs:
+      stage-version: version
+      stage-release: release
+      product: custom
+      tag-format: 'v${version}'
+      mr-comments: 'true'
+  # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
+  # role (its trust covers devops/* on main).
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2
+    inputs:
+      stage: build
+      artifact-file: dist/SHA256SUMS
+      needs-config:
+        - version
+        - build:binaries
+      rules-config:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+      additional-script-begin: '[ "$RELEASE_STATUS" = "release" ] || { echo "skip: ${RELEASE_STATUS:-unknown}"; exit 0; }'
   # Not part of the go composed pipeline. .gitsigners and SPDX headers without
   # the jobs that read them are decoration, not gates.
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1
@@ -38,10 +71,59 @@ test:go:
 # mutant fails this job; that is how we know the checks can fail.
 test:mutation:
   stage: test
-  # The same image test:go runs in. The composed go template defines no
-  # GO_IMAGE variable: with it, this job fell back to a default image the
-  # runner may not pull (first pipeline, 2026-09-25).
-  image: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
+  image: ${GO_IMAGE}
   needs: [test:go]
   script:
     - go run ./tools/mutation
+
+# GitLab evaluates rules: before .release.env exists, so the release status is
+# checked in each script.
+.needs-release: &needs-release
+  - '[ "$RELEASE_STATUS" = "release" ] || { echo "skip: ${RELEASE_STATUS:-unknown}"; exit 0; }'
+
+build:binaries:
+  stage: build
+  image: ${GO_IMAGE}
+  needs: [version, test:go]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+  script:
+    - *needs-release
+    - mkdir -p dist
+    - |
+      for arch in amd64 arm64; do
+        CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+          go build -trimpath -ldflags "-s -w" \
+          -o "dist/pod-cert-signer-linux-$arch" ./cmd/pod-cert-signer
+      done
+    - cd dist && sha256sum pod-cert-signer-* > SHA256SUMS && cat SHA256SUMS
+  artifacts:
+    paths: [dist/]
+    expire_in: 1 day
+
+upload:package-registry:
+  stage: build
+  needs:
+    - version
+    - build:binaries
+    - job: sign:artifact:dist/SHA256SUMS
+      optional: true
+  image: registry.ole-hartwig.eu/devops/images/curl:8.21@sha256:77fa0f7d62321743ca0f8fac03860b3d469dc9390cda007bc2a3af41a82f140a
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+  variables:
+    PACKAGE_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/pod-cert-signer"
+  script:
+    - *needs-release
+    - cd dist
+    # An unsigned manifest is not a release.
+    - test -s SHA256SUMS.sig || { echo "SHA256SUMS.sig missing; refusing to publish unsigned"; exit 1; }
+    - |
+      for f in pod-cert-signer-linux-amd64 pod-cert-signer-linux-arm64 SHA256SUMS SHA256SUMS.sig; do
+        curl --fail-with-body --silent --show-error \
+          --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+          --upload-file "$f" "${PACKAGE_URL}/${RELEASE_VERSION}/${f}"
+      done
+
+release:
+  needs: [version, build:binaries, upload:package-registry]
