@@ -1,3 +1,9 @@
+## [0.1.1](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.0...v0.1.1) (2026-09-25)
+
+### :bug: Fixes
+
+* certificates the API accepts, and status failures that are logged ([feb5d49](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/feb5d498d1f06f5ca2131a91b3d876ff4a06e27b))
+
 ## [0.1.0] (2026-09-25)
 
 ### :sparkles: Features
