@@ -1,0 +1,14 @@
+[
+  {"check": "1 unnamed ServiceAccount is denied", "file": "issuer/issuer.go", "test": "TestAnUnnamedServiceAccountGetsNothing",
+   "from": "\tif g == nil {\n\t\treturn nil, &Denied{ReasonNoGrant,",
+   "to":   "\tif g == nil {\n\t\tg = &policy.Grant{Usage: policy.UsageClient}\n\t}\n\tif false {\n\t\treturn nil, &Denied{ReasonNoGrant,"},
+  {"check": "2 DNS name outside the grant denies", "file": "issuer/issuer.go", "test": "TestADNSNameOutsideTheGrantDeniesTheRequest",
+   "from": "\t\tif !slices.Contains(g.DNSNames, n) {",
+   "to":   "\t\tif false && !slices.Contains(g.DNSNames, n) {"},
+  {"check": "3 lifetime is capped", "file": "issuer/issuer.go", "test": "TestTheLifetimeIsCappedByTheShorterLimit",
+   "from": "\t\tlifetime = min(lifetime, time.Duration(req.MaxExpirationSeconds)*time.Second)",
+   "to":   "\t\tlifetime = max(lifetime, time.Duration(req.MaxExpirationSeconds)*time.Second)"},
+  {"check": "4 unlisted key type is denied", "file": "issuer/issuer.go", "test": "TestAnUnlistedKeyTypeIsDenied",
+   "from": "\tif err != nil || !is.Policy.AllowsKeyType(kt) {",
+   "to":   "\tif err != nil {"}
+]
