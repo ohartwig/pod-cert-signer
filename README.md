@@ -22,9 +22,10 @@ README does not repeat them.
 | `policy` | parse and validate the policy, default deny, name constraints enforced at parse time |
 | `issuer` | decide a request, proof of possession, certificate profile, lifetime cap |
 | `ca` | self-signed CA with critical name constraints (`svc`, `svc.cluster.local`, the SPIFFE trust domain) |
-| Kubernetes API watch and status | not yet |
-| KMS `crypto.Signer` | not yet |
-| `init` subcommand, image, deployment | not yet |
+| `kube`, `controller` | list/watch, conditional status write, one answer per request (!2) |
+| `kmssigner` | the CA key in KMS: P-256, `ECDSA_SHA_256` over `DIGEST`; wrong spec or usage refused at startup |
+| `cmd/pod-cert-signer` | `run` (checks the CA certificate belongs to the KMS key before answering anything) and `init` (prints the CA for a KMS key) |
+| image, deployment, KMS key | not yet |
 
 ## Checks that must be able to fail
 
