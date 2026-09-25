@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+#
+# No `stages:` and no `workflow:` here: declaring either REPLACES what the
+# composed template supplies, and a job in an undeclared stage produces zero
+# jobs and no error. Every job below uses a stage the template declares.
+
+include:
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/composed-default-pipelines/go@2
+    inputs:
+      working-directory: '.'
+  # Not part of the go composed pipeline. .gitsigners and SPDX headers without
+  # the jobs that read them are decoration, not gates.
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1
+    inputs:
+      stage: quick
+  # lint-reuse is NOT included, deliberately. Its default rule creates the
+  # job only when **/*.php exists (a Go repository gets no job and no error),
+  # and its image is amd64-only while every docker runner here is arm64
+  # (exec format error, measured 2026-09-25). It comes back with a multi-arch
+  # reuse image; until then `reuse lint` is a local check (README).
+
+# Extended, not replaced. The count assertion is the point: a suite that runs
+# zero tests and a suite that does not run are both green otherwise.
+test:go:
+  script:
+    - go test -race -coverprofile=coverage.out ./...
+    - |
+      set -eu
+      pkgs="$(go list ./... | wc -l | tr -d ' ')"
+      echo "packages: $pkgs"
+      test "$pkgs" -gt 0 || { echo "no packages - the suite did not run"; exit 1; }
+    - go tool cover -func=coverage.out | tail -1
+  coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
+
+# The design's four checks, each with its rule removed on purpose: every
+# mutant must compile and turn its test red (tools/mutation). A surviving
+# mutant fails this job; that is how we know the checks can fail.
+test:mutation:
+  stage: test
+  # The same image test:go runs in. The composed go template defines no
+  # GO_IMAGE variable: with it, this job fell back to a default image the
+  # runner may not pull (first pipeline, 2026-09-25).
+  image: registry.ole-hartwig.eu/devops/images/golang:1.27
+  needs: [test:go]
+  script:
+    - go run ./tools/mutation
