@@ -87,8 +87,12 @@ type Issuer struct {
 const apiFloor = time.Hour
 
 // clockSkew backdates notBefore so that a node whose clock runs slightly
-// behind still accepts the certificate.
-const clockSkew = 5 * time.Minute
+// behind still accepts the certificate. It has to stay well inside the API's
+// own window: kube-apiserver rejects a status.notBefore that is not "within 5
+// minutes of kube-apiserver's current time". Five minutes exactly, plus the
+// truncation to whole seconds, was just outside it - the third rule the
+// first deployment met (2026-09-25).
+const clockSkew = time.Minute
 
 // Issue decides the request and, if it is allowed, signs a leaf. A *Denied
 // error means "write a Denied condition"; any other error is transient and
@@ -140,7 +144,10 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 	// with nanoseconds never does.
 	notBefore := now.Truncate(time.Second).Add(-clockSkew)
 	notAfter := notBefore.Add(lifetime)
-	refresh := notBefore.Add(time.Duration(is.Policy.RefreshAt * float64(notAfter.Sub(notBefore))))
+	// Whole seconds like the other two times; the API wants it inside
+	// [notBefore+10min, notAfter-10min], which refreshAt in (0,1) of a
+	// lifetime of at least one hour keeps for any refreshAt in [0.17, 0.83].
+	refresh := notBefore.Add(time.Duration(is.Policy.RefreshAt * float64(notAfter.Sub(notBefore)))).Truncate(time.Second)
 
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {

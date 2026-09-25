@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 // Server is the fake. Create with New, stop with Close.
@@ -241,6 +242,29 @@ func validateIssued(cur map[string]any, status any) string {
 		if got, _ := st[field].(string); got != want {
 			return fmt.Sprintf("status.%s %q does not match the leaf (%s)", field, got, want)
 		}
+	}
+	// kube-apiserver: status.notBefore "must be set to within 5 minutes of
+	// kube-apiserver's current time".
+	if skew := time.Since(leaf.NotBefore); skew > 5*time.Minute || skew < -5*time.Minute {
+		return fmt.Sprintf("status.notBefore %s is not within 5 minutes of the server's time", leaf.NotBefore)
+	}
+	// beginRefreshAt in [notBefore+10min, notAfter-10min].
+	if br, err := time.Parse(time.RFC3339, fmt.Sprint(st["beginRefreshAt"])); err != nil {
+		return "status.beginRefreshAt missing or not RFC 3339"
+	} else if br.Before(leaf.NotBefore.Add(10*time.Minute)) || br.After(leaf.NotAfter.Add(-10*time.Minute)) {
+		return fmt.Sprintf("status.beginRefreshAt %s is not within [notBefore+10min, notAfter-10min]", br)
+	}
+	// At most one terminal condition.
+	n := 0
+	conds, _ := st["conditions"].([]any)
+	for _, c := range conds {
+		switch c.(map[string]any)["type"] {
+		case "Issued", "Denied", "Failed":
+			n++
+		}
+	}
+	if n > 1 {
+		return "there may be at most one condition with type Issued, Denied or Failed"
 	}
 	d := leaf.NotAfter.Sub(leaf.NotBefore)
 	spec, _ := cur["spec"].(map[string]any)

@@ -114,8 +114,12 @@ func Parse(data []byte) (*Policy, error) {
 	if time.Duration(p.Lifetime) < minLifetime {
 		return nil, fmt.Errorf("policy: lifetime %s is below the API floor of %s", time.Duration(p.Lifetime), minLifetime)
 	}
-	if p.RefreshAt <= 0 || p.RefreshAt >= 1 {
-		return nil, fmt.Errorf("policy: refreshAt %v must be between 0 and 1, exclusive", p.RefreshAt)
+	// The API wants beginRefreshAt at least 10 minutes after notBefore and 10
+	// minutes before notAfter. With the shortest lifetime it accepts, one
+	// hour, that is refreshAt in [1/6, 5/6]; outside it some request would be
+	// refused.
+	if p.RefreshAt < 0.17 || p.RefreshAt > 0.83 {
+		return nil, fmt.Errorf("policy: refreshAt %v must be between 0.17 and 0.83 (10 minutes from either end of a 1 h certificate)", p.RefreshAt)
 	}
 	if len(p.KeyTypes) == 0 {
 		return nil, errors.New("policy: keyTypes is empty")
