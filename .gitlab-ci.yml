@@ -41,7 +41,7 @@ test:mutation:
   # The same image test:go runs in. The composed go template defines no
   # GO_IMAGE variable: with it, this job fell back to a default image the
   # runner may not pull (first pipeline, 2026-09-25).
-  image: registry.ole-hartwig.eu/devops/images/golang:1.27
+  image: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
   needs: [test:go]
   script:
     - go run ./tools/mutation
