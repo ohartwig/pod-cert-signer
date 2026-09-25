@@ -14,9 +14,21 @@ include:
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1
     inputs:
       stage: quick
+  # The component's default rule creates the job only when **/*.php exists,
+  # so in a Go repository it silently produces no job - measured in
+  # pinup/pinup on 2026-09-25, where it had never run. The rule is given here,
+  # and allow_failure is taken back below: a licence gate that cannot fail
+  # the pipeline is a report.
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/lint-reuse@1
     inputs:
       stage: quick
+      rules-config:
+        - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+        - when: never
+
+lint:reuse:
+  allow_failure: false
 
 # Extended, not replaced. The count assertion is the point: a suite that runs
 # zero tests and a suite that does not run are both green otherwise.
@@ -36,7 +48,10 @@ test:go:
 # mutant fails this job; that is how we know the checks can fail.
 test:mutation:
   stage: test
-  image: ${GO_IMAGE}
+  # The same image test:go runs in. The composed go template defines no
+  # GO_IMAGE variable: with it, this job fell back to a default image the
+  # runner may not pull (first pipeline, 2026-09-25).
+  image: registry.ole-hartwig.eu/devops/images/golang:1.27
   needs: [test:go]
   script:
     - go run ./tools/mutation
