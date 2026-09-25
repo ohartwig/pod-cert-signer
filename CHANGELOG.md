@@ -1,3 +1,9 @@
+## [0.1.2](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.1...v0.1.2) (2026-09-25)
+
+### :bug: Fixes
+
+* notBefore inside the API's five-minute window; every status rule in the fake ([9ecd6a0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9ecd6a04ca97a4bde6443e70f7341b09da31a589))
+
 ## [0.1.1](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.0...v0.1.1) (2026-09-25)
 
 ### :bug: Fixes
