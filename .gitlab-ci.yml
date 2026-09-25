@@ -29,6 +29,10 @@ include:
       stage-release: release
       product: custom
       tag-format: 'v${version}'
+      # product: custom derives no non-release paths, and yasrt refuses to
+      # decide without them (first main pipeline, 2026-09-25). Changes to
+      # these alone cut no release.
+      non-release-paths: ['README.md', '.gitlab/**', '.gitsigners', '.gitsigners.d/**', 'LICENSES/**', '.markdownlint.jsonc']
       mr-comments: 'true'
   # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
   # role (its trust covers devops/* on main).
