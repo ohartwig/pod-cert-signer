@@ -28,14 +28,6 @@ import (
 	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
 )
 
-// DNSNamesAnnotation is how a pod asks for DNS names. It arrives in the
-// request's unverifiedUserAnnotations, so it is a wish, never a fact: the
-// grant decides.
-const DNSNamesAnnotation = "koh.ole-hartwig.eu/dns-names"
-
-// TrustDomain is the SPIFFE trust domain of every issued identity.
-const TrustDomain = "koh.ole-hartwig.eu"
-
 // Request carries the fields of a PodCertificateRequest the decision uses.
 // Everything except UserAnnotations is filled in by the API server from the
 // pod itself.
@@ -122,7 +114,9 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 		return nil, &Denied{ReasonUnsupportedKeyType, fmt.Sprintf("key type %q is not accepted; use one of %v", kt, is.Policy.KeyTypes)}
 	}
 
-	dnsNames, err := grantedDNSNames(g, req.UserAnnotations[DNSNamesAnnotation])
+	// The annotation arrives in unverifiedUserAnnotations: a wish, never a
+	// fact. The grant decides.
+	dnsNames, err := grantedDNSNames(g, req.UserAnnotations[is.Policy.DNSNamesAnnotation])
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +137,7 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := &url.URL{Scheme: "spiffe", Host: TrustDomain, Path: "/ns/" + req.Namespace + "/sa/" + req.ServiceAccountName}
+	id := &url.URL{Scheme: "spiffe", Host: is.Policy.TrustDomain, Path: "/ns/" + req.Namespace + "/sa/" + req.ServiceAccountName}
 	subject := pkix.Name{CommonName: req.Namespace + "/" + req.ServiceAccountName}
 	if g.OU != "" {
 		subject.OrganizationalUnit = []string{g.OU}

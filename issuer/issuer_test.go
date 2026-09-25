@@ -24,6 +24,8 @@ var now = time.Date(2026, 9, 25, 12, 0, 0, 0, time.UTC)
 
 const testPolicy = `{
   "signerName": "koh.ole-hartwig.eu/workload",
+  "trustDomain": "koh.ole-hartwig.eu",
+  "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names",
   "lifetime": "24h",
   "refreshAt": 0.66,
   "keyTypes": ["ECDSAP256", "ED25519"],
@@ -45,7 +47,7 @@ func newIssuer(t *testing.T) (*issuer.Issuer, *x509.Certificate) {
 		t.Fatal(err)
 	}
 	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	der, err := ca.New(key, "test workload CA", now, 5*365*24*time.Hour)
+	der, err := ca.New(key, "test workload CA", p.TrustDomain, now, 5*365*24*time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,7 +115,7 @@ func TestADNSNameOutsideTheGrantDeniesTheRequest(t *testing.T) {
 		_, err := is.Issue(issuer.Request{
 			Namespace: "monitoring", ServiceAccountName: "crowdsec-loki",
 			StubPKCS10Request: stubCSR(t, p256(t)),
-			UserAnnotations:   map[string]string{issuer.DNSNamesAnnotation: want},
+			UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": want},
 		}, now)
 		denied(t, err, issuer.ReasonDNSNameNotGranted)
 	}
@@ -121,7 +123,7 @@ func TestADNSNameOutsideTheGrantDeniesTheRequest(t *testing.T) {
 	_, err := is.Issue(issuer.Request{
 		Namespace: "kube-system", ServiceAccountName: "traefik",
 		StubPKCS10Request: stubCSR(t, p256(t)),
-		UserAnnotations:   map[string]string{issuer.DNSNamesAnnotation: "traefik.kube-system.svc"},
+		UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": "traefik.kube-system.svc"},
 	}, now)
 	denied(t, err, issuer.ReasonDNSNameNotGranted)
 }
@@ -196,7 +198,7 @@ func TestAnIssuedServerCertificateVerifiesAndCarriesItsIdentity(t *testing.T) {
 	got, err := is.Issue(issuer.Request{
 		Namespace: "monitoring", ServiceAccountName: "crowdsec-loki",
 		StubPKCS10Request: stubCSR(t, p256(t)),
-		UserAnnotations:   map[string]string{issuer.DNSNamesAnnotation: "crowdsec-loki.monitoring.svc"},
+		UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": "crowdsec-loki.monitoring.svc"},
 	}, now)
 	if err != nil {
 		t.Fatal(err)

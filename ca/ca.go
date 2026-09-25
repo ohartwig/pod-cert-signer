@@ -14,8 +14,6 @@ import (
 	"crypto/x509/pkix"
 	"math/big"
 	"time"
-
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
 )
 
 // PermittedDNSDomains are the name constraints of design D2. In Go's
@@ -24,10 +22,10 @@ var PermittedDNSDomains = []string{"svc", "svc.cluster.local"}
 
 // New signs a CA certificate for the key behind signer. The certificate may
 // sign leaves only (path length 0), only for in-cluster DNS names and only
-// for identities in the estate's SPIFFE trust domain. The constraints are
+// for identities in the given SPIFFE trust domain. The constraints are
 // marked critical, so a verifier that does not understand them rejects the
 // chain instead of ignoring them.
-func New(signer crypto.Signer, cn string, now time.Time, validity time.Duration) ([]byte, error) {
+func New(signer crypto.Signer, cn, trustDomain string, now time.Time, validity time.Duration) ([]byte, error) {
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
 		return nil, err
@@ -43,7 +41,7 @@ func New(signer crypto.Signer, cn string, now time.Time, validity time.Duration)
 		MaxPathLenZero:              true,
 		PermittedDNSDomainsCritical: true,
 		PermittedDNSDomains:         PermittedDNSDomains,
-		PermittedURIDomains:         []string{issuer.TrustDomain},
+		PermittedURIDomains:         []string{trustDomain},
 	}
 	return x509.CreateCertificate(rand.Reader, tmpl, tmpl, signer.Public(), signer)
 }

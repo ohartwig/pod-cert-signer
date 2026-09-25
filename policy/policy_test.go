@@ -10,7 +10,7 @@ import (
 	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
 )
 
-const head = `"signerName": "koh.ole-hartwig.eu/workload", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"]`
+const head = `"signerName": "koh.ole-hartwig.eu/workload", "trustDomain": "koh.ole-hartwig.eu", "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"]`
 
 // Every rule Parse enforces, fed its violation. A policy that fails here is a
 // policy the signer refuses to run on (fail closed), so each case is also a
@@ -26,11 +26,13 @@ func TestParseRejects(t *testing.T) {
 		{"public dns name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": ["example.com"]}]}`, "name constraints"},
 		{"bare suffix as name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": [".svc"]}]}`, "name constraints"},
 		{"unknown usage", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "both"}]}`, "neither"},
-		{"lifetime below floor", `{"signerName": "s", "lifetime": "30m", "refreshAt": 0.5, "keyTypes": ["ECDSAP256"], "grants": []}`, "API floor"},
-		{"refreshAt out of range", `{"signerName": "s", "lifetime": "24h", "refreshAt": 1, "keyTypes": ["ECDSAP256"], "grants": []}`, "refreshAt"},
-		{"unknown key type", `{"signerName": "s", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["DSA1024"], "grants": []}`, "unknown key type"},
-		{"no key types", `{"signerName": "s", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": [], "grants": []}`, "keyTypes is empty"},
-		{"no signer name", `{"lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["ED25519"], "grants": []}`, "signerName"},
+		{"lifetime below floor", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "30m", "refreshAt": 0.5, "keyTypes": ["ECDSAP256"], "grants": []}`, "API floor"},
+		{"refreshAt out of range", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 1, "keyTypes": ["ECDSAP256"], "grants": []}`, "refreshAt"},
+		{"unknown key type", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["DSA1024"], "grants": []}`, "unknown key type"},
+		{"no key types", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": [], "grants": []}`, "keyTypes is empty"},
+		{"no signer name", `{"trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["ED25519"], "grants": []}`, "signerName"},
+		{"trust domain with a path", `{"signerName": "s", "trustDomain": "t.example/x", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["ED25519"], "grants": []}`, "bare host name"},
+		{"annotation without domain", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "dns-names", "lifetime": "24h", "refreshAt": 0.5, "keyTypes": ["ED25519"], "grants": []}`, "domain-prefixed"},
 		{"trailing data", `{` + head + `, "grants": []} {}`, "trailing"},
 	} {
 		_, err := policy.Parse([]byte(tc.doc))

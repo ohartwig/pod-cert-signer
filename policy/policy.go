@@ -55,11 +55,19 @@ type Grant struct {
 
 // Policy is the whole file.
 type Policy struct {
-	SignerName string    `json:"signerName"`
-	Lifetime   Duration  `json:"lifetime"`
-	RefreshAt  float64   `json:"refreshAt"`
-	KeyTypes   []KeyType `json:"keyTypes"`
-	Grants     []Grant   `json:"grants"`
+	SignerName string `json:"signerName"`
+	// TrustDomain is the SPIFFE trust domain of every issued identity
+	// (spiffe://<trustDomain>/ns/<ns>/sa/<sa>). It must match the CA's URI
+	// name constraint.
+	TrustDomain string `json:"trustDomain"`
+	// DNSNamesAnnotation is the pod annotation key through which a pod asks
+	// for DNS names. Domain-prefixed, as the API requires for
+	// unverifiedUserAnnotations.
+	DNSNamesAnnotation string    `json:"dnsNamesAnnotation"`
+	Lifetime           Duration  `json:"lifetime"`
+	RefreshAt          float64   `json:"refreshAt"`
+	KeyTypes           []KeyType `json:"keyTypes"`
+	Grants             []Grant   `json:"grants"`
 }
 
 // Duration is a time.Duration written as "24h" in the file.
@@ -96,6 +104,12 @@ func Parse(data []byte) (*Policy, error) {
 	}
 	if p.SignerName == "" {
 		return nil, errors.New("policy: signerName is empty")
+	}
+	if p.TrustDomain == "" || strings.ContainsAny(p.TrustDomain, "/:") {
+		return nil, fmt.Errorf("policy: trustDomain %q must be a bare host name", p.TrustDomain)
+	}
+	if prefix, name, ok := strings.Cut(p.DNSNamesAnnotation, "/"); !ok || !strings.Contains(prefix, ".") || name == "" {
+		return nil, fmt.Errorf("policy: dnsNamesAnnotation %q must be domain-prefixed, like example.com/dns-names", p.DNSNamesAnnotation)
 	}
 	if time.Duration(p.Lifetime) < minLifetime {
 		return nil, fmt.Errorf("policy: lifetime %s is below the API floor of %s", time.Duration(p.Lifetime), minLifetime)
