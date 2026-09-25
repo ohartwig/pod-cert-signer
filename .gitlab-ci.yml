@@ -14,21 +14,11 @@ include:
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1
     inputs:
       stage: quick
-  # The component's default rule creates the job only when **/*.php exists,
-  # so in a Go repository it silently produces no job - measured in
-  # pinup/pinup on 2026-09-25, where it had never run. The rule is given here,
-  # and allow_failure is taken back below: a licence gate that cannot fail
-  # the pipeline is a report.
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/lint-reuse@1
-    inputs:
-      stage: quick
-      rules-config:
-        - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-        - when: never
-
-lint:reuse:
-  allow_failure: false
+  # lint-reuse is NOT included, deliberately. Its default rule creates the
+  # job only when **/*.php exists (a Go repository gets no job and no error),
+  # and its image is amd64-only while every docker runner here is arm64
+  # (exec format error, measured 2026-09-25). It comes back with a multi-arch
+  # reuse image; until then `reuse lint` is a local check (README).
 
 # Extended, not replaced. The count assertion is the point: a suite that runs
 # zero tests and a suite that does not run are both green otherwise.

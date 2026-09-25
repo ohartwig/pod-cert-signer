@@ -31,6 +31,7 @@ README does not repeat them.
 ```bash
 go test ./...
 go run ./tools/mutation   # every mutant must compile and be KILLED
+reuse lint                # licensing; not in CI yet (see .gitlab-ci.yml)
 ```
 
 `tools/mutation/mutations.json` removes one rule per entry: grant by
