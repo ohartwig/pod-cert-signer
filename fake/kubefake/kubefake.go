@@ -12,7 +12,9 @@
 package kubefake
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -108,9 +110,16 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) list(w http.ResponseWriter) {
 	s.mu.Lock()
+	// Like the real API: items of a list carry no apiVersion and kind.
 	items := make([]map[string]any, 0, len(s.objs))
 	for _, o := range s.objs {
-		items = append(items, o)
+		it := map[string]any{}
+		for k, v := range o {
+			if k != "apiVersion" && k != "kind" {
+				it[k] = v
+			}
+		}
+		items = append(items, it)
 	}
 	rv := s.rv
 	s.mu.Unlock()
@@ -184,6 +193,10 @@ func (s *Server) putStatus(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf(`{"code":422,"message":"%s is already answered"}`, key), http.StatusUnprocessableEntity)
 		return
 	}
+	if msg := validateIssued(cur, in["status"]); msg != "" {
+		http.Error(w, fmt.Sprintf(`{"code":422,"message":%q}`, msg), http.StatusUnprocessableEntity)
+		return
+	}
 	s.rv++
 	cur["status"] = in["status"]
 	cur["metadata"].(map[string]any)["resourceVersion"] = strconv.Itoa(s.rv)
@@ -202,4 +215,44 @@ func terminal(o map[string]any) bool {
 		}
 	}
 	return false
+}
+
+// validateIssued applies the rules kube-apiserver applies to an issued pod
+// certificate that the signer can get wrong: the leaf must parse, the status
+// times must equal the leaf's, and notAfter - notBefore must lie between one
+// hour and the request's maxExpirationSeconds. The first deployment broke
+// the last rule and every write was refused; a fake that accepted it is how
+// the tests stayed green.
+func validateIssued(cur map[string]any, status any) string {
+	st, _ := status.(map[string]any)
+	chain, _ := st["certificateChain"].(string)
+	if chain == "" {
+		return ""
+	}
+	blk, _ := pem.Decode([]byte(chain))
+	if blk == nil {
+		return "certificateChain: no PEM block"
+	}
+	leaf, err := x509.ParseCertificate(blk.Bytes)
+	if err != nil {
+		return "certificateChain: " + err.Error()
+	}
+	for field, want := range map[string]string{"notBefore": leaf.NotBefore.UTC().Format("2006-01-02T15:04:05Z"), "notAfter": leaf.NotAfter.UTC().Format("2006-01-02T15:04:05Z")} {
+		if got, _ := st[field].(string); got != want {
+			return fmt.Sprintf("status.%s %q does not match the leaf (%s)", field, got, want)
+		}
+	}
+	d := leaf.NotAfter.Sub(leaf.NotBefore)
+	spec, _ := cur["spec"].(map[string]any)
+	maxExp, _ := spec["maxExpirationSeconds"].(float64)
+	if maxExp == 0 {
+		maxExp = 86400
+	}
+	if d.Seconds() > maxExp {
+		return fmt.Sprintf("certificate lifetime %s exceeds maxExpirationSeconds %v", d, maxExp)
+	}
+	if d.Hours() < 1 {
+		return fmt.Sprintf("certificate lifetime %s is below one hour", d)
+	}
+	return ""
 }

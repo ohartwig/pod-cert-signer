@@ -40,5 +40,20 @@
   "test": "TestAConflictIsRetriedByTheNextList",
   "from": "\t\t\t_ = c.Handle(ctx, r) // logged inside; retried by the next list",
   "to": "\t\t\t_ = r // logged inside; retried by the next list"
+ },
+ {
+  "check": "issuer: the lifetime counts from notBefore (first deployment's bug)",
+  "file": "issuer/issuer.go",
+  "test": "TestTheLifetimeIsCappedByTheShorterLimit",
+  "from": "\tnotAfter := notBefore.Add(lifetime)",
+  "to": "\tnotAfter := now.Add(lifetime)"
+ },
+ {
+  "check": "issuer: status times are whole seconds (API equality with the leaf)",
+  "file": "issuer/issuer.go",
+  "test": "TestAGrantedRequestIsIssuedOnce",
+  "from": "\tnotBefore := now.Truncate(time.Second).Add(-clockSkew)",
+  "to": "\tnotBefore := now.Add(-clockSkew)",
+  "pkg": "./controller"
  }
 ]
