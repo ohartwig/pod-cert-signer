@@ -21,8 +21,11 @@ type mutation struct {
 	Check string `json:"check"`
 	File  string `json:"file"`
 	Test  string `json:"test"`
-	From  string `json:"from"`
-	To    string `json:"to"`
+	// Pkg is the package whose test judges the mutant, when it is not the
+	// mutated file's own (a controller test catching an issuer bug).
+	Pkg  string `json:"pkg,omitempty"`
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 func main() {
@@ -69,6 +72,12 @@ func run(m mutation) (string, error) {
 	defer os.WriteFile(m.File, orig, 0o644)
 
 	pkg := "./" + filepath.Dir(m.File)
+	if exec.Command("go", "vet", pkg).Run() != nil {
+		return "BUILD", nil // the mutant does not compile: it proves nothing
+	}
+	if m.Pkg != "" {
+		pkg = m.Pkg
+	}
 	if exec.Command("go", "vet", pkg).Run() != nil {
 		return "BUILD", nil // the mutant does not compile: it proves nothing
 	}

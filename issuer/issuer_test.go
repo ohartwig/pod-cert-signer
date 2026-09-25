@@ -149,8 +149,13 @@ func TestTheLifetimeIsCappedByTheShorterLimit(t *testing.T) {
 			t.Fatalf("%s: %v", tc.name, err)
 		}
 		cert, _ := x509.ParseCertificate(got.CertificateDER)
-		if want := now.Add(tc.want); !cert.NotAfter.Equal(want) || !got.NotAfter.Equal(want) {
-			t.Fatalf("%s: notAfter %s (status %s), want %s", tc.name, cert.NotAfter, got.NotAfter, want)
+		// The whole validity counts, backdating included: the API rejects a
+		// certificate whose notAfter - notBefore exceeds maxExpirationSeconds.
+		if d := cert.NotAfter.Sub(cert.NotBefore); d != tc.want {
+			t.Fatalf("%s: validity %s, want exactly %s", tc.name, d, tc.want)
+		}
+		if !got.NotAfter.Equal(cert.NotAfter) || !got.NotBefore.Equal(cert.NotBefore) {
+			t.Fatalf("%s: status times differ from the certificate", tc.name)
 		}
 		if !got.BeginRefreshAt.After(got.NotBefore) || !got.BeginRefreshAt.Before(got.NotAfter) {
 			t.Fatalf("%s: beginRefreshAt %s outside the validity", tc.name, got.BeginRefreshAt)

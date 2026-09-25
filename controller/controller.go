@@ -71,6 +71,7 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 			LastTransitionTime: now.UTC().Truncate(time.Second), ObservedGeneration: r.Metadata.Generation,
 		})
 		if err := c.API.UpdateStatus(ctx, r); err != nil {
+			log.Error("writing the denial failed, will retry", "err", err)
 			return err
 		}
 		log.Warn("denied", "reason", denied.Reason, "message", denied.Message)
@@ -88,7 +89,11 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 		Type: "Issued", Status: "True", Reason: "Issued", Message: "issued by " + c.SignerName,
 		LastTransitionTime: now.UTC().Truncate(time.Second), ObservedGeneration: r.Metadata.Generation,
 	})
+	// A failed status write used to return here silently, and Run discards
+	// the error: the first deployment answered nothing for twenty minutes
+	// and logged nothing. Every failure is logged where it happens.
 	if err := c.API.UpdateStatus(ctx, r); err != nil {
+		log.Error("writing the certificate failed, will retry", "err", err)
 		return err
 	}
 	log.Info("issued", "notAfter", na)

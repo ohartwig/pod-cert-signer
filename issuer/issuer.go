@@ -129,8 +129,17 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 		return nil, &Denied{ReasonBadLifetime, fmt.Sprintf("the allowed lifetime %s is below the API floor %s", lifetime, apiFloor)}
 	}
 
-	notBefore := now.Add(-clockSkew)
-	notAfter := now.Add(lifetime)
+	// The lifetime counts from notBefore, backdating included. The API
+	// rejects a certificate whose notAfter - notBefore exceeds the request's
+	// maxExpirationSeconds; `now + lifetime` with a backdated notBefore made
+	// every 24 h certificate 24 h 5 min long, and every status write failed
+	// (first deployment, 2026-09-25).
+	//
+	// Whole seconds, too: an X.509 time carries no fraction, and the API
+	// requires status.notBefore/notAfter to EQUAL the leaf's. A status time
+	// with nanoseconds never does.
+	notBefore := now.Truncate(time.Second).Add(-clockSkew)
+	notAfter := notBefore.Add(lifetime)
 	refresh := notBefore.Add(time.Duration(is.Policy.RefreshAt * float64(notAfter.Sub(notBefore))))
 
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
