@@ -1,3 +1,13 @@
+## [0.3.5](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.4...v0.3.5) (2026-09-26)
+
+### :bug: Fixes
+
+* a lost status-write race is a conflict, not an error ([fa37f68](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/fa37f682d8182e9ea210212bd64f0c62409f1403))
+
+### :repeat: Chores
+
+* **deps:** update dependency mstruebing/editorconfig-checker to v3.11.3 ([55aad04](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/55aad0470a12c7e8bd3582a6fa9a587df9366f3e))
+
 ## [0.3.4](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.3...v0.3.4) (2026-09-26)
 
 ### :repeat: Chores
