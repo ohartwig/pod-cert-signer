@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package ca builds the self-signed CA certificate. It is used once per CA
-// key, by the `init` subcommand, and its output goes into koh-gitops by merge
-// request, so the creation of a trust anchor is a reviewed artefact and not a
-// line in someone's shell history.
+// key, by the `init` subcommand, and its output goes into the cluster's GitOps
+// repository by merge request, so the creation of a trust anchor is a reviewed
+// artefact and not a line in someone's shell history.
 package ca
 
 import (

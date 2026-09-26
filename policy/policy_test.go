@@ -10,7 +10,7 @@ import (
 	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
-const head = `"signerName": "koh.ole-hartwig.eu/workload", "trustDomain": "koh.ole-hartwig.eu", "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"]`
+const head = `"signerName": "example.com/workload", "trustDomain": "example.com", "dnsNamesAnnotation": "example.com/dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"]`
 
 // Every rule Parse enforces, fed its violation. A policy that fails here is a
 // policy the signer refuses to run on (fail closed), so each case is also a
@@ -47,15 +47,15 @@ func TestParseRejects(t *testing.T) {
 // whatever the order in the file.
 func TestLookupPrefersTheExactNamespace(t *testing.T) {
 	p, err := policy.Parse([]byte(`{` + head + `, "grants": [
-	  {"namespace": "kunde-*", "serviceAccount": "agent", "usage": "client", "ou": "family"},
-	  {"namespace": "kunde-a", "serviceAccount": "agent", "usage": "client", "ou": "exact"}]}`))
+	  {"namespace": "tenant-*", "serviceAccount": "agent", "usage": "client", "ou": "family"},
+	  {"namespace": "tenant-a", "serviceAccount": "agent", "usage": "client", "ou": "exact"}]}`))
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, tc := range []struct{ ns, wantOU string }{
-		{"kunde-a", "exact"},
-		{"kunde-b", "family"},
-		{"kundeb", ""},
+		{"tenant-a", "exact"},
+		{"tenant-b", "family"},
+		{"tenantb", ""},
 		{"other", ""},
 	} {
 		g := p.Lookup(tc.ns, "agent")

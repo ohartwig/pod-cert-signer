@@ -23,17 +23,17 @@ import (
 var now = time.Date(2026, 9, 25, 12, 0, 0, 0, time.UTC)
 
 const testPolicy = `{
-  "signerName": "koh.ole-hartwig.eu/workload",
-  "trustDomain": "koh.ole-hartwig.eu",
-  "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names",
+  "signerName": "example.com/workload",
+  "trustDomain": "example.com",
+  "dnsNamesAnnotation": "example.com/dns-names",
   "lifetime": "24h",
   "refreshAt": 0.66,
   "keyTypes": ["ECDSAP256", "ED25519"],
   "grants": [
-    {"namespace": "monitoring", "serviceAccount": "crowdsec-loki", "usage": "server",
-     "dnsNames": ["crowdsec-loki.monitoring.svc", "crowdsec-loki.monitoring.svc.cluster.local"]},
-    {"namespace": "kube-system", "serviceAccount": "traefik", "usage": "client", "ou": "crowdsec-agent"},
-    {"namespace": "kunde-*", "serviceAccount": "crowdsec-agent", "usage": "client", "ou": "crowdsec-agent"}
+    {"namespace": "monitoring", "serviceAccount": "lapi", "usage": "server",
+     "dnsNames": ["lapi.monitoring.svc", "lapi.monitoring.svc.cluster.local"]},
+    {"namespace": "kube-system", "serviceAccount": "ingress", "usage": "client", "ou": "agent"},
+    {"namespace": "tenant-*", "serviceAccount": "agent", "usage": "client", "ou": "agent"}
   ]
 }`
 
@@ -90,9 +90,9 @@ func denied(t *testing.T, err error, want issuer.Reason) {
 func TestAnUnnamedServiceAccountGetsNothing(t *testing.T) {
 	is, _ := newIssuer(t)
 	for _, tc := range []struct{ ns, sa string }{
-		{"monitoring", "prometheus"},     // right namespace, wrong SA
-		{"kube-system", "crowdsec-loki"}, // right SA name, wrong namespace
-		{"kundefoo", "crowdsec-agent"},   // looks like the prefix, is not
+		{"monitoring", "prometheus"}, // right namespace, wrong SA
+		{"kube-system", "lapi"},      // right SA name, wrong namespace
+		{"tenantfoo", "agent"},       // looks like the prefix, is not
 		{"default", "default"},
 	} {
 		got, err := is.Issue(issuer.Request{Namespace: tc.ns, ServiceAccountName: tc.sa, StubPKCS10Request: stubCSR(t, p256(t))}, now)
@@ -108,22 +108,22 @@ func TestAnUnnamedServiceAccountGetsNothing(t *testing.T) {
 func TestADNSNameOutsideTheGrantDeniesTheRequest(t *testing.T) {
 	is, _ := newIssuer(t)
 	for _, want := range []string{
-		"crowdsec-loki.monitoring.svc,evil.monitoring.svc",
+		"lapi.monitoring.svc,evil.monitoring.svc",
 		"grafana.monitoring.svc",
 		"example.com",
 	} {
 		_, err := is.Issue(issuer.Request{
-			Namespace: "monitoring", ServiceAccountName: "crowdsec-loki",
+			Namespace: "monitoring", ServiceAccountName: "lapi",
 			StubPKCS10Request: stubCSR(t, p256(t)),
-			UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": want},
+			UserAnnotations:   map[string]string{"example.com/dns-names": want},
 		}, now)
 		denied(t, err, issuer.ReasonDNSNameNotGranted)
 	}
 	// And a client grant never carries DNS names, even when asked.
 	_, err := is.Issue(issuer.Request{
-		Namespace: "kube-system", ServiceAccountName: "traefik",
+		Namespace: "kube-system", ServiceAccountName: "ingress",
 		StubPKCS10Request: stubCSR(t, p256(t)),
-		UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": "traefik.kube-system.svc"},
+		UserAnnotations:   map[string]string{"example.com/dns-names": "ingress.kube-system.svc"},
 	}, now)
 	denied(t, err, issuer.ReasonDNSNameNotGranted)
 }
@@ -142,7 +142,7 @@ func TestTheLifetimeIsCappedByTheShorterLimit(t *testing.T) {
 		{"request leaves it to the signer", 0, 24 * time.Hour},
 	} {
 		got, err := is.Issue(issuer.Request{
-			Namespace: "kube-system", ServiceAccountName: "traefik",
+			Namespace: "kube-system", ServiceAccountName: "ingress",
 			MaxExpirationSeconds: tc.maxExp, StubPKCS10Request: stubCSR(t, p256(t)),
 		}, now)
 		if err != nil {
@@ -162,7 +162,7 @@ func TestTheLifetimeIsCappedByTheShorterLimit(t *testing.T) {
 		}
 	}
 	// Below the API floor of one hour the request is denied, not shortened.
-	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "traefik",
+	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "ingress",
 		MaxExpirationSeconds: 1800, StubPKCS10Request: stubCSR(t, p256(t))}, now)
 	denied(t, err, issuer.ReasonBadLifetime)
 }
@@ -172,14 +172,14 @@ func TestTheLifetimeIsCappedByTheShorterLimit(t *testing.T) {
 func TestAnUnlistedKeyTypeIsDenied(t *testing.T) {
 	is, _ := newIssuer(t)
 	p384, _ := ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "traefik",
+	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "ingress",
 		StubPKCS10Request: stubCSR(t, p384)}, now)
 	denied(t, err, issuer.ReasonUnsupportedKeyType)
 
 	// The two listed types pass.
 	_, ed, _ := ed25519.GenerateKey(rand.Reader)
 	for _, k := range []crypto.Signer{p256(t), ed} {
-		if _, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "traefik",
+		if _, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "ingress",
 			StubPKCS10Request: stubCSR(t, k)}, now); err != nil {
 			t.Fatalf("%T: %v", k, err)
 		}
@@ -192,7 +192,7 @@ func TestAForgedStubRequestIsDenied(t *testing.T) {
 	is, _ := newIssuer(t)
 	der := stubCSR(t, p256(t))
 	der[len(der)-1] ^= 0xff // the last byte is part of the signature
-	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "traefik", StubPKCS10Request: der}, now)
+	_, err := is.Issue(issuer.Request{Namespace: "kube-system", ServiceAccountName: "ingress", StubPKCS10Request: der}, now)
 	denied(t, err, issuer.ReasonBadCSR)
 }
 
@@ -201,9 +201,9 @@ func TestAForgedStubRequestIsDenied(t *testing.T) {
 func TestAnIssuedServerCertificateVerifiesAndCarriesItsIdentity(t *testing.T) {
 	is, caCert := newIssuer(t)
 	got, err := is.Issue(issuer.Request{
-		Namespace: "monitoring", ServiceAccountName: "crowdsec-loki",
+		Namespace: "monitoring", ServiceAccountName: "lapi",
 		StubPKCS10Request: stubCSR(t, p256(t)),
-		UserAnnotations:   map[string]string{"koh.ole-hartwig.eu/dns-names": "crowdsec-loki.monitoring.svc"},
+		UserAnnotations:   map[string]string{"example.com/dns-names": "lapi.monitoring.svc"},
 	}, now)
 	if err != nil {
 		t.Fatal(err)
@@ -215,15 +215,15 @@ func TestAnIssuedServerCertificateVerifiesAndCarriesItsIdentity(t *testing.T) {
 	roots := x509.NewCertPool()
 	roots.AddCert(caCert)
 	if _, err := leaf.Verify(x509.VerifyOptions{
-		Roots: roots, DNSName: "crowdsec-loki.monitoring.svc",
+		Roots: roots, DNSName: "lapi.monitoring.svc",
 		CurrentTime: now, KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}); err != nil {
 		t.Fatalf("verify: %v", err)
 	}
-	if leaf.Subject.CommonName != "monitoring/crowdsec-loki" {
+	if leaf.Subject.CommonName != "monitoring/lapi" {
 		t.Fatalf("CN %q", leaf.Subject.CommonName)
 	}
-	if len(leaf.URIs) != 1 || leaf.URIs[0].String() != "spiffe://koh.ole-hartwig.eu/ns/monitoring/sa/crowdsec-loki" {
+	if len(leaf.URIs) != 1 || leaf.URIs[0].String() != "spiffe://example.com/ns/monitoring/sa/lapi" {
 		t.Fatalf("URIs %v", leaf.URIs)
 	}
 }
@@ -235,7 +235,7 @@ func TestTheCANameConstraintsRejectAPublicName(t *testing.T) {
 	is, caCert := newIssuer(t)
 	tmpl := &x509.Certificate{
 		SerialNumber: big1(), NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour),
-		DNSNames: []string{"git.ole-hartwig.eu"}, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		DNSNames: []string{"example.org"}, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 	pub := p256(t).Public()
 	der, err := x509.CreateCertificate(rand.Reader, tmpl, caCert, pub, is.CA.Signer)
@@ -245,7 +245,7 @@ func TestTheCANameConstraintsRejectAPublicName(t *testing.T) {
 	leaf, _ := x509.ParseCertificate(der)
 	roots := x509.NewCertPool()
 	roots.AddCert(caCert)
-	_, err = leaf.Verify(x509.VerifyOptions{Roots: roots, DNSName: "git.ole-hartwig.eu", CurrentTime: now})
+	_, err = leaf.Verify(x509.VerifyOptions{Roots: roots, DNSName: "example.org", CurrentTime: now})
 	var cie x509.CertificateInvalidError
 	if !errors.As(err, &cie) || cie.Reason != x509.CANotAuthorizedForThisName {
 		t.Fatalf("want CANotAuthorizedForThisName, got %v", err)

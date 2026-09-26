@@ -171,8 +171,8 @@ func readCert(path string) (*x509.Certificate, error) {
 }
 
 // initCA creates the CA certificate for the KMS key and prints it. It is run
-// once per key, by hand, and its output goes into koh-gitops by merge
-// request - the trust anchor is a reviewed artefact.
+// once per key, by hand, and its output goes into the cluster's GitOps
+// repository by merge request - the trust anchor is a reviewed artefact.
 func initCA(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("init", flag.ContinueOnError)
 	cn := fs.String("cn", "", "subject common name of the CA (required)")
