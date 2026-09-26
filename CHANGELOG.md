@@ -1,3 +1,9 @@
+## [0.3.3](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.2...v0.3.3) (2026-09-26)
+
+### :repeat: Chores
+
+* **repo-templates:** sync ([504dff8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/504dff853e4cfee85d97e80c5747571d159764ed))
+
 ## [0.3.2](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.1...v0.3.2) (2026-09-26)
 
 ### :repeat: Chores
