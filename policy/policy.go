@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package policy is the part of the signer that decides who is who. It is a
-// file in koh-gitops, so every change to it is a reviewed merge request, and
-// it denies by default: a ServiceAccount no grant names gets nothing.
+// file in the cluster's GitOps repository, so every change to it is a
+// reviewed merge request, and it denies by default: a ServiceAccount no grant
+// names gets nothing.
 //
 // Parse is strict on purpose. An unknown key, a bare "*" namespace or a DNS
 // name outside the CA's name constraints is an error, and a signer that cannot
@@ -142,7 +143,7 @@ func (g Grant) validate() error {
 	case g.Namespace == "":
 		return errors.New("namespace is empty")
 	case g.Namespace == "*":
-		return errors.New(`a bare "*" namespace grants every namespace; name them or use a prefix like "kunde-*"`)
+		return errors.New(`a bare "*" namespace grants every namespace; name them or use a prefix like "tenant-*"`)
 	case strings.Contains(strings.TrimSuffix(g.Namespace, "*"), "*"):
 		return errors.New(`"*" is allowed only as the last character of the namespace`)
 	case g.ServiceAccount == "" || strings.Contains(g.ServiceAccount, "*"):

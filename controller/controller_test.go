@@ -17,23 +17,23 @@ import (
 	"testing"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/controller"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/fake/kubefake"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/controller"
+	"github.com/ohartwig/pod-cert-signer/fake/kubefake"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/kube"
+	"github.com/ohartwig/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
-const signer = "koh.ole-hartwig.eu/workload"
+const signer = "example.com/workload"
 
 const pol = `{
-  "signerName": "koh.ole-hartwig.eu/workload",
-  "trustDomain": "koh.ole-hartwig.eu",
-  "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names",
+  "signerName": "example.com/workload",
+  "trustDomain": "example.com",
+  "dnsNamesAnnotation": "example.com/dns-names",
   "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"],
-  "grants": [{"namespace": "kube-system", "serviceAccount": "traefik", "usage": "client", "ou": "crowdsec-agent"}]
+  "grants": [{"namespace": "kube-system", "serviceAccount": "ingress", "usage": "client", "ou": "agent"}]
 }`
 
 type rig struct {
@@ -117,7 +117,7 @@ func conditions(o map[string]any) []map[string]any {
 func TestAGrantedRequestIsIssuedOnce(t *testing.T) {
 	r := start(t, nil)
 	defer r.stop()
-	r.srv.Add(request(t, "kube-system", "req-1", "traefik", signer))
+	r.srv.Add(request(t, "kube-system", "req-1", "ingress", signer))
 
 	waitFor(t, "Issued", func() bool { return len(conditions(r.srv.Get("kube-system", "req-1"))) > 0 })
 	o := r.srv.Get("kube-system", "req-1")
@@ -167,7 +167,7 @@ func TestAnUngrantedRequestIsDeniedWithItsReason(t *testing.T) {
 func TestARequestForAnotherSignerIsLeftAlone(t *testing.T) {
 	r := start(t, nil)
 	defer r.stop()
-	r.srv.Add(request(t, "kube-system", "req-3", "traefik", "example.com/other"))
+	r.srv.Add(request(t, "kube-system", "req-3", "ingress", "example.com/other"))
 	time.Sleep(600 * time.Millisecond)
 	if n := r.srv.Updates(); n != 0 {
 		t.Fatalf("%d status writes to a request for another signer", n)
@@ -179,7 +179,7 @@ func TestARequestForAnotherSignerIsLeftAlone(t *testing.T) {
 func TestAConflictIsRetriedByTheNextList(t *testing.T) {
 	r := start(t, func(s *kubefake.Server) { s.ConflictNext = 1 })
 	defer r.stop()
-	r.srv.Add(request(t, "kube-system", "req-4", "traefik", signer))
+	r.srv.Add(request(t, "kube-system", "req-4", "ingress", signer))
 	waitFor(t, "Issued after a conflict", func() bool { return len(conditions(r.srv.Get("kube-system", "req-4"))) > 0 })
 	time.Sleep(400 * time.Millisecond)
 	if n := r.srv.Updates(); n != 1 {
@@ -191,7 +191,7 @@ func TestAConflictIsRetriedByTheNextList(t *testing.T) {
 func TestTheMetricsCountWhatHappened(t *testing.T) {
 	r := start(t, nil)
 	defer r.stop()
-	r.srv.Add(request(t, "kube-system", "req-m1", "traefik", signer))
+	r.srv.Add(request(t, "kube-system", "req-m1", "ingress", signer))
 	r.srv.Add(request(t, "default", "req-m2", "default", signer))
 	waitFor(t, "both answered", func() bool {
 		return len(conditions(r.srv.Get("kube-system", "req-m1"))) > 0 && len(conditions(r.srv.Get("default", "req-m2"))) > 0

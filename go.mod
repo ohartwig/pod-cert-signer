@@ -1,4 +1,4 @@
-module git.ole-hartwig.eu/devops/pod-cert-signer
+module github.com/ohartwig/pod-cert-signer
 
 go 1.27
 

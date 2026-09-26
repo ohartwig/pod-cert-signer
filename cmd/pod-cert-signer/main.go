@@ -37,13 +37,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/controller"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kmssigner"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/controller"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/kmssigner"
+	"github.com/ohartwig/pod-cert-signer/kube"
+	"github.com/ohartwig/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 func main() {
@@ -171,8 +171,8 @@ func readCert(path string) (*x509.Certificate, error) {
 }
 
 // initCA creates the CA certificate for the KMS key and prints it. It is run
-// once per key, by hand, and its output goes into koh-gitops by merge
-// request - the trust anchor is a reviewed artefact.
+// once per key, by hand, and its output goes into the cluster's GitOps
+// repository by merge request - the trust anchor is a reviewed artefact.
 func initCA(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("init", flag.ContinueOnError)
 	cn := fs.String("cn", "", "subject common name of the CA (required)")

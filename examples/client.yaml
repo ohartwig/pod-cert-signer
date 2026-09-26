@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+#
+# A workload with a server certificate for its Service names. The pod asks for
+# the names through userAnnotations; the signer issues them only if the grant
+# for team-a/api lists them all.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+  namespace: team-a
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api
+  namespace: team-a
+spec:
+  serviceAccountName: api
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile: { type: RuntimeDefault }
+  containers:
+    - name: api
+      image: registry.example.com/api:1.0
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: [ALL] }
+      volumeMounts:
+        - { name: tls, mountPath: /run/tls, readOnly: true }
+  volumes:
+    - name: tls
+      projected:
+        sources:
+          - podCertificate:
+              signerName: example.com/workload
+              keyType: ECDSAP256
+              keyPath: tls.key
+              certificateChainPath: tls.crt
+              userAnnotations:
+                example.com/dns-names: api.team-a.svc,api.team-a.svc.cluster.local
+          - clusterTrustBundle:
+              signerName: example.com/workload
+              labelSelector: {}
+              path: ca.crt

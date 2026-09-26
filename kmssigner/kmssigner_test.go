@@ -13,9 +13,9 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/kms/types"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/fake/kmsfake"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kmssigner"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/fake/kmsfake"
+	"github.com/ohartwig/pod-cert-signer/kmssigner"
 )
 
 // The whole path: a CA certificate signed through the KMS signer is a valid,

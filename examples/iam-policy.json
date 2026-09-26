@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadTheKey",
+      "Effect": "Allow",
+      "Action": ["kms:GetPublicKey", "kms:DescribeKey"],
+      "Resource": "arn:aws:kms:eu-central-1:123456789012:key/REPLACE-WITH-KEY-ID"
+    },
+    {
+      "Sid": "SignDigestsOnly",
+      "Effect": "Allow",
+      "Action": "kms:Sign",
+      "Resource": "arn:aws:kms:eu-central-1:123456789012:key/REPLACE-WITH-KEY-ID",
+      "Condition": {
+        "StringEquals": {
+          "kms:SigningAlgorithm": "ECDSA_SHA_256",
+          "kms:MessageType": "DIGEST"
+        }
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/metrics"
 )
 
 var t0 = time.Date(2026, 9, 26, 5, 0, 0, 0, time.UTC)
