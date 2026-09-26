@@ -26,6 +26,7 @@ type Registry struct {
 	issued        uint64
 	denied        map[string]uint64
 	writeErrors   uint64
+	conflicts     uint64
 	issueErrors   uint64
 	pending       int
 	oldestPending float64
@@ -37,7 +38,12 @@ func New() *Registry { return &Registry{denied: map[string]uint64{}} }
 
 func (r *Registry) Issued()     { r.mu.Lock(); r.issued++; r.mu.Unlock() }
 func (r *Registry) WriteError() { r.mu.Lock(); r.writeErrors++; r.mu.Unlock() }
-func (r *Registry) IssueError() { r.mu.Lock(); r.issueErrors++; r.mu.Unlock() }
+
+// WriteConflict counts a status write the API answered with 409: another
+// replica answered the request first, or the object moved. Not an error -
+// two replicas are meant to race for every request.
+func (r *Registry) WriteConflict() { r.mu.Lock(); r.conflicts++; r.mu.Unlock() }
+func (r *Registry) IssueError()    { r.mu.Lock(); r.issueErrors++; r.mu.Unlock() }
 func (r *Registry) Denied(reason string) {
 	r.mu.Lock()
 	r.denied[reason]++
@@ -80,7 +86,8 @@ func (r *Registry) Render() string {
 	for _, k := range reasons {
 		fmt.Fprintf(&b, "pod_cert_signer_denied_total{reason=%q} %d\n", k, r.denied[k])
 	}
-	counter("pod_cert_signer_status_write_errors_total", "Status writes the API refused or that failed.", r.writeErrors)
+	counter("pod_cert_signer_status_write_errors_total", "Status writes the API refused or that failed, conflicts excluded.", r.writeErrors)
+	counter("pod_cert_signer_status_write_conflicts_total", "Status writes that lost the race to another replica (409); the request was answered.", r.conflicts)
 	counter("pod_cert_signer_issue_errors_total", "Transient failures before a status write (KMS, parsing).", r.issueErrors)
 	gauge("pod_cert_signer_pending_requests", "Unanswered requests for this signer at the last list.", float64(r.pending))
 	gauge("pod_cert_signer_pending_oldest_seconds", "Age of the oldest unanswered request at the last list.", r.oldestPending)

@@ -70,5 +70,12 @@
   "test": "TestHealthzFollowsTheLastList",
   "from": "\t\tif last.IsZero() || now().Sub(last) > maxAge {",
   "to": "\t\tif last.IsZero() {"
+ },
+ {
+  "check": "controller: a 409 is a lost race, counted as a conflict, not as an error",
+  "file": "controller/controller.go",
+  "test": "TestAConflictIsRetriedByTheNextList",
+  "from": "\tif kube.IsConflict(err) {",
+  "to": "\tif false {"
  }
 ]

@@ -80,9 +80,7 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 			LastTransitionTime: now.UTC().Truncate(time.Second), ObservedGeneration: r.Metadata.Generation,
 		})
 		if err := c.API.UpdateStatus(ctx, r); err != nil {
-			log.Error("writing the denial failed, will retry", "err", err)
-			c.count((*metrics.Registry).WriteError)
-			return err
+			return c.writeFailed(log, "denial", err)
 		}
 		c.count(func(m *metrics.Registry) { m.Denied(string(denied.Reason)) })
 		log.Warn("denied", "reason", denied.Reason, "message", denied.Message)
@@ -105,13 +103,31 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 	// the error: the first deployment answered nothing for twenty minutes
 	// and logged nothing. Every failure is logged where it happens.
 	if err := c.API.UpdateStatus(ctx, r); err != nil {
-		log.Error("writing the certificate failed, will retry", "err", err)
-		c.count((*metrics.Registry).WriteError)
-		return err
+		return c.writeFailed(log, "certificate", err)
 	}
 	c.count((*metrics.Registry).Issued)
 	log.Info("issued", "notAfter", na)
 	return nil
+}
+
+// writeFailed logs and counts a status write the API did not accept.
+//
+// A 409 is the race the design runs on purpose: two replicas answer the same
+// request, the write is conditional on its resourceVersion, and one of them
+// loses. That is counted as a conflict and logged at info level. Counted as
+// an error, it paged on the first renewal wave in production (2026-09-26,
+// five agents, five "errors", every request issued by the other replica).
+// Should the 409 mean the object moved instead, the request is still pending
+// and the next list answers it.
+func (c *Controller) writeFailed(log *slog.Logger, what string, err error) error {
+	if kube.IsConflict(err) {
+		log.Info("the "+what+" was not written: another replica answered first, or the request moved; the next list decides", "err", err)
+		c.count((*metrics.Registry).WriteConflict)
+		return nil
+	}
+	log.Error("writing the "+what+" failed, will retry", "err", err)
+	c.count((*metrics.Registry).WriteError)
+	return err
 }
 
 // Run lists, answers, watches, and repeats until ctx ends.
