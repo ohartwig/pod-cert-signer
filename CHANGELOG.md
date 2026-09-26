@@ -1,3 +1,14 @@
+## [0.3.0](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.2.1...v0.3.0) (2026-09-26)
+
+### :sparkles: Features
+
+* releases on GitHub and a signed image on ghcr ([213c60f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/213c60fe17829538f6cc7f4a0004f319eb93e7bf))
+
+### :repeat: Continuous Integrations
+
+* hadolint passes on the public Containerfile ([8b3da91](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8b3da9103c0be3809d1350dd91425bd874faa7c6))
+* hadolint leaves the CA bundle to the Wolfi base ([1a72aa0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/1a72aa02499de2315c28ce6e50f4bde8e1aeaa83))
+
 ## [0.2.1](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.2.0...v0.2.1) (2026-09-26)
 
 ### :memo: Documentation
