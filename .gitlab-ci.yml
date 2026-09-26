@@ -36,7 +36,7 @@ include:
       mr-comments: 'true'
   # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
   # role (its trust covers devops/* on main).
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2.0.178
     inputs:
       stage: build
       artifact-file: dist/SHA256SUMS
