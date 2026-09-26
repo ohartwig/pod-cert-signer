@@ -13,6 +13,7 @@ import (
 	"encoding/pem"
 	"io"
 	"log/slog"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 	"git.ole-hartwig.eu/devops/pod-cert-signer/fake/kubefake"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
+	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
 )
 
@@ -35,6 +37,7 @@ const pol = `{
 }`
 
 type rig struct {
+	reg  *metrics.Registry
 	srv  *kubefake.Server
 	ca   *x509.Certificate
 	stop func()
@@ -55,7 +58,9 @@ func start(t *testing.T, tweak func(*kubefake.Server)) *rig {
 	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	der, _ := ca.New(key, "test CA", p.TrustDomain, time.Now(), 24*365*time.Hour)
 	caCert, _ := x509.ParseCertificate(der)
+	reg := metrics.New()
 	c := &controller.Controller{
+		Metrics:    reg,
 		API:        &kube.Client{Base: srv.URL, HTTP: srv.Client(), Token: "t0ken"},
 		Issuer:     &issuer.Issuer{Policy: p, CA: issuer.CA{Cert: caCert, Signer: key}},
 		SignerName: signer,
@@ -66,7 +71,7 @@ func start(t *testing.T, tweak func(*kubefake.Server)) *rig {
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan struct{})
 	go func() { _ = c.Run(ctx); close(done) }()
-	return &rig{srv: srv, ca: caCert, stop: func() { cancel(); <-done; srv.Close() }}
+	return &rig{reg: reg, srv: srv, ca: caCert, stop: func() { cancel(); <-done; srv.Close() }}
 }
 
 func request(t *testing.T, ns, name, sa, signerName string) map[string]any {
@@ -179,5 +184,27 @@ func TestAConflictIsRetriedByTheNextList(t *testing.T) {
 	time.Sleep(400 * time.Millisecond)
 	if n := r.srv.Updates(); n != 1 {
 		t.Fatalf("%d accepted status writes, want 1", n)
+	}
+}
+
+// What Handle did is counted, and after the next list nothing is pending.
+func TestTheMetricsCountWhatHappened(t *testing.T) {
+	r := start(t, nil)
+	defer r.stop()
+	r.srv.Add(request(t, "kube-system", "req-m1", "traefik", signer))
+	r.srv.Add(request(t, "default", "req-m2", "default", signer))
+	waitFor(t, "both answered", func() bool {
+		return len(conditions(r.srv.Get("kube-system", "req-m1"))) > 0 && len(conditions(r.srv.Get("default", "req-m2"))) > 0
+	})
+	time.Sleep(400 * time.Millisecond) // one more resync list
+	out := r.reg.Render()
+	for _, want := range []string{
+		"pod_cert_signer_issued_total 1",
+		`pod_cert_signer_denied_total{reason="NoGrant"} 1`,
+		"pod_cert_signer_pending_requests 0",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in\n%s", want, out)
+		}
 	}
 }

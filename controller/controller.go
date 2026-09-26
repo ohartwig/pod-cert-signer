@@ -20,6 +20,7 @@ import (
 
 	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
+	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
 )
 
 // API is the part of kube.Client the controller uses.
@@ -39,6 +40,14 @@ type Controller struct {
 	// Resync bounds each watch; the list that follows retries whatever is
 	// still pending.
 	Resync time.Duration
+	// Metrics, if set, counts what Handle does and what each list saw.
+	Metrics *metrics.Registry
+}
+
+func (c *Controller) count(f func(*metrics.Registry)) {
+	if c.Metrics != nil {
+		f(c.Metrics)
+	}
 }
 
 // Handle answers one request if it is ours and still pending. A returned
@@ -72,12 +81,15 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 		})
 		if err := c.API.UpdateStatus(ctx, r); err != nil {
 			log.Error("writing the denial failed, will retry", "err", err)
+			c.count((*metrics.Registry).WriteError)
 			return err
 		}
+		c.count(func(m *metrics.Registry) { m.Denied(string(denied.Reason)) })
 		log.Warn("denied", "reason", denied.Reason, "message", denied.Message)
 		return nil
 	case err != nil:
 		log.Error("issue failed, will retry", "err", err)
+		c.count((*metrics.Registry).IssueError)
 		return err
 	}
 
@@ -94,8 +106,10 @@ func (c *Controller) Handle(ctx context.Context, r *kube.PodCertificateRequest) 
 	// and logged nothing. Every failure is logged where it happens.
 	if err := c.API.UpdateStatus(ctx, r); err != nil {
 		log.Error("writing the certificate failed, will retry", "err", err)
+		c.count((*metrics.Registry).WriteError)
 		return err
 	}
+	c.count((*metrics.Registry).Issued)
 	log.Info("issued", "notAfter", na)
 	return nil
 }
@@ -112,6 +126,7 @@ func (c *Controller) Run(ctx context.Context) error {
 		for _, r := range items {
 			_ = c.Handle(ctx, r) // logged inside; retried by the next list
 		}
+		c.recordPending(items)
 		wctx, cancel := context.WithTimeout(ctx, c.Resync)
 		_, err = c.API.Watch(wctx, rv, func(ev kube.Event) {
 			if ev.Type == "ADDED" || ev.Type == "MODIFIED" {
@@ -125,6 +140,27 @@ func (c *Controller) Run(ctx context.Context) error {
 		}
 	}
 	return ctx.Err()
+}
+
+// recordPending counts the requests for this signer that are still
+// unanswered after the pass, and the age of the oldest. The alert on a signer
+// that has stopped answering reads the age.
+func (c *Controller) recordPending(items []*kube.PodCertificateRequest) {
+	if c.Metrics == nil {
+		return
+	}
+	now := c.Now()
+	n, oldest := 0, time.Duration(0)
+	for _, r := range items {
+		if !r.Pending() || r.Spec.SignerName != c.SignerName {
+			continue
+		}
+		n++
+		if age := now.Sub(r.Metadata.CreationTimestamp); !r.Metadata.CreationTimestamp.IsZero() && age > oldest {
+			oldest = age
+		}
+	}
+	c.Metrics.Listed(now, n, oldest)
 }
 
 func sleep(ctx context.Context, d time.Duration) {
