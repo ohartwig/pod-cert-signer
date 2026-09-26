@@ -1,3 +1,13 @@
+## [0.2.0](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.2...v0.2.0) (2026-09-26)
+
+### :sparkles: Features
+
+* /metrics and /healthz - a signer that stops answering must page someone ([1053153](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/1053153f50c8a84c48bd111c624ab3a3c4de7664))
+
+### :repeat: Continuous Integrations
+
+* the REUSE gate is on ([99b99b6](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/99b99b699ca42d913e2af8483b94648ddd25e323))
+
 ## [0.1.2](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.1...v0.1.2) (2026-09-25)
 
 ### :bug: Fixes
