@@ -17,9 +17,18 @@ metadata:
   namespace: team-a
 spec:
   serviceAccountName: api
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile: { type: RuntimeDefault }
   containers:
     - name: api
       image: registry.example.com/api:1.0
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: [ALL] }
       volumeMounts:
         - { name: tls, mountPath: /run/tls, readOnly: true }
   volumes:
