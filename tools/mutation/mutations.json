@@ -63,5 +63,12 @@
   "pkg": "./controller",
   "from": "const clockSkew = time.Minute",
   "to": "const clockSkew = 5 * time.Minute"
+ },
+ {
+  "check": "metrics: /healthz goes unhealthy when the last list is too old",
+  "file": "metrics/metrics.go",
+  "test": "TestHealthzFollowsTheLastList",
+  "from": "\t\tif last.IsZero() || now().Sub(last) > maxAge {",
+  "to": "\t\tif last.IsZero() {"
  }
 ]

@@ -60,6 +60,9 @@ func (s *Server) Add(obj map[string]any) {
 	s.rv++
 	md := obj["metadata"].(map[string]any)
 	md["resourceVersion"] = strconv.Itoa(s.rv)
+	if _, ok := md["creationTimestamp"]; !ok {
+		md["creationTimestamp"] = time.Now().UTC().Format(time.RFC3339)
+	}
 	s.objs[md["namespace"].(string)+"/"+md["name"].(string)] = obj
 	s.notify("ADDED", obj)
 }

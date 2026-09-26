@@ -12,6 +12,7 @@
 //	POLICY_FILE   policy JSON                 (/etc/pod-cert-signer/policy.json)
 //	CA_CERT_FILE  CA certificate PEM          (/etc/pod-cert-signer/ca.crt)
 //	KMS_KEY_ID    KMS key id, ARN or alias    (required)
+//	METRICS_ADDR  /metrics and /healthz       (:9090)
 //	AWS_REGION and the IRSA variables the pod identity webhook sets
 //
 // time.Now is read here and nowhere else; every package below takes the
@@ -27,6 +28,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -40,6 +42,7 @@ import (
 	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/kmssigner"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
+	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
 	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
 )
 
@@ -118,7 +121,15 @@ func run(ctx context.Context, log *slog.Logger) error {
 	// Deployment restart with the new file, and a bad one CrashLoops -
 	// which is the fail-closed behaviour the design asks for.
 	go watchFile(ctx, log, policyFile, raw)
+	reg := metrics.New()
+	srv := &http.Server{Addr: env("METRICS_ADDR", ":9090"), Handler: reg.Handler(time.Now, 3*time.Minute), ReadHeaderTimeout: 5 * time.Second}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("metrics server", "err", err)
+		}
+	}()
 	c := &controller.Controller{
+		Metrics:    reg,
 		API:        api,
 		Issuer:     &issuer.Issuer{Policy: pol, CA: issuer.CA{Cert: caCert, Signer: signer}},
 		SignerName: pol.SignerName,

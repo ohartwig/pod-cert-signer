@@ -39,10 +39,11 @@ type PodCertificateRequest struct {
 }
 
 type Metadata struct {
-	Name            string `json:"name"`
-	Namespace       string `json:"namespace"`
-	ResourceVersion string `json:"resourceVersion,omitempty"`
-	Generation      int64  `json:"generation,omitempty"`
+	Name              string    `json:"name"`
+	Namespace         string    `json:"namespace"`
+	ResourceVersion   string    `json:"resourceVersion,omitempty"`
+	Generation        int64     `json:"generation,omitempty"`
+	CreationTimestamp time.Time `json:"creationTimestamp,omitzero"`
 }
 
 type Spec struct {
