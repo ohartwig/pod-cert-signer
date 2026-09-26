@@ -61,6 +61,51 @@ include:
         - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
         - when: never
 
+  # The public mirror at github.com/ohartwig/pod-cert-signer, the same
+  # component as yasrt, pinup and s3mail: main and the v-tags, with the
+  # history rewritten without the paths that are working material of this
+  # instance. Runs last, so a tag cut in this pipeline goes out with it.
+  #
+  # GITHUB_MIRROR_TOKEN is a fine-grained token with contents:write on the
+  # mirror repository. Without it neither job exists.
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/extension-clean-export/github-mirror@1
+    inputs:
+      stage: .post
+      mirror-target: 'ohartwig/pod-cert-signer'
+      mirror-token-var: 'GITHUB_MIRROR_TOKEN'
+      strip-paths: ['CLAUDE.md', '.gitsigners', '.gitsigners.d', '.gitlab', 'renovate.json', '.mise.toml', 'lefthook.yml']
+      keep-tags: 'v*'
+      prune: 'true'
+      rules-config:
+        - if: $GITHUB_MIRROR_TOKEN == null
+          when: never
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+
+  # The GitHub release, with the binaries this pipeline built and the
+  # manifest it signed - the files the package registry holds, not a second
+  # build. Its `published` event starts .github/workflows/images.yml, which
+  # packages those binaries as ghcr.io/ohartwig/pod-cert-signer.
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/extension-clean-export/github-release@1
+    inputs:
+      stage: .post
+      release-target: 'ohartwig/pod-cert-signer'
+      release-token-var: 'GITHUB_MIRROR_TOKEN'
+      release-tag: 'v${RELEASE_VERSION}'
+      assets: ['dist/pod-cert-signer-*', 'dist/SHA256SUMS', 'dist/SHA256SUMS.sig']
+      notes-from-report: 'release-report.json'
+      needs-config:
+        - mirror:github
+        - version
+        - build:binaries
+        - release
+        - job: sign:artifact:dist/SHA256SUMS
+          optional: true
+      rules-config:
+        - if: $GITHUB_MIRROR_TOKEN == null
+          when: never
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+      additional-script-begin: '[ "$RELEASE_STATUS" = "release" ] || { echo "skip: ${RELEASE_STATUS:-unknown}"; exit 0; }'
+
 lint:reuse:
   allow_failure: false
 

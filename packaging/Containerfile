@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+
+# pod-cert-signer, packaged for ghcr.io/ohartwig/pod-cert-signer.
+#
+# THE BINARY IS NOT BUILT HERE. The workflow that builds this image downloads
+# the release's binaries, checks them against SHA256SUMS (whose cosign
+# signature was made when the release was cut) and copies one in. A binary
+# built a second time here would be a second artefact under the release's
+# name, with nobody's signature on it.
+#
+# Static Go, so the image needs nothing but CA certificates, for the API
+# server and KMS. The base is Chainguard's public wolfi-base, pinned by
+# digest: an image that cannot say which base it was built on cannot be
+# rebuilt.
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:1d95114038f76513a9ace6fca107d5582b08c65981f81f61cb56bf7fd2ef216d
+
+# Set by BuildKit for each leg of a multi-platform build.
+ARG TARGETARCH
+
+USER root
+RUN apk add --no-cache ca-certificates-bundle
+
+COPY dist/pod-cert-signer-linux-${TARGETARCH} /usr/local/bin/pod-cert-signer
+
+# Smoke test: the binary runs on this architecture and knows its commands.
+# Without arguments it prints its usage and exits 2; anything else (exec
+# format error, a missing loader) is a broken image.
+RUN chmod 0755 /usr/local/bin/pod-cert-signer \
+ && set +e; /usr/local/bin/pod-cert-signer > /tmp/out 2>&1; rc=$?; set -e; \
+    grep -q 'usage: pod-cert-signer run|init' /tmp/out && [ "$rc" -eq 2 ] \
+    || { echo "smoke: pod-cert-signer did not start (rc=$rc)"; cat /tmp/out; exit 1; }; \
+    rm -f /tmp/out
+
+# Non-root. The example Deployment adds readOnlyRootFilesystem and drops
+# every capability.
+USER 65532:65532
+ENTRYPOINT ["/usr/local/bin/pod-cert-signer"]
+CMD ["run"]

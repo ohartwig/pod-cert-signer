@@ -25,6 +25,29 @@ Why it is built the way it is: [`docs/design.md`](docs/design.md).
   from the signer's pod (for example through IRSA, or any credential the AWS
   SDK's default chain finds).
 
+## Install
+
+The image is [`ghcr.io/ohartwig/pod-cert-signer`](https://github.com/ohartwig/pod-cert-signer/pkgs/container/pod-cert-signer),
+`linux/amd64` and `linux/arm64`, signed keyless:
+
+```sh
+cosign verify ghcr.io/ohartwig/pod-cert-signer:0 \
+  --certificate-identity-regexp '^https://github.com/ohartwig/pod-cert-signer/' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+Static Linux binaries (amd64, arm64) come with every
+[release](https://github.com/ohartwig/pod-cert-signer/releases), with
+`SHA256SUMS` and a detached cosign signature over it. They are built and
+signed once, in the author's pipeline; the image packages the same files and
+nothing is rebuilt on GitHub.
+
+```sh
+cosign verify-blob --key <public-key> --signature SHA256SUMS.sig \
+  --insecure-ignore-tlog=true SHA256SUMS
+sha256sum -c SHA256SUMS
+```
+
 ## How a pod gets a certificate
 
 ```yaml
