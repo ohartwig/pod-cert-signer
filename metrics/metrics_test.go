@@ -21,12 +21,15 @@ func TestRenderCarriesEveryValue(t *testing.T) {
 	r.Issued()
 	r.Denied("NoGrant")
 	r.WriteError()
+	r.WriteConflict()
+	r.WriteConflict()
 	r.Listed(t0, 3, 90*time.Second)
 	out := r.Render()
 	for _, want := range []string{
 		"pod_cert_signer_issued_total 2",
 		`pod_cert_signer_denied_total{reason="NoGrant"} 1`,
 		"pod_cert_signer_status_write_errors_total 1",
+		"pod_cert_signer_status_write_conflicts_total 2",
 		"pod_cert_signer_pending_requests 3",
 		"pod_cert_signer_pending_oldest_seconds 90",
 	} {

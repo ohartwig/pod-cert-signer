@@ -75,7 +75,9 @@ identities self-service for anyone who can edit a namespace.
 
 Status updates are conditional on the request's `resourceVersion`. When two
 replicas answer the same request, one write succeeds and the other gets a
-conflict, so a request is never answered twice. Two replicas keep new pods
+conflict, so a request is never answered twice. The losing write is counted as a
+conflict (`pod_cert_signer_status_write_conflicts_total`) and logged at info
+level, not as an error: with two replicas it happens for nearly every request. Two replicas keep new pods
 starting while one is being replaced.
 
 ### 8. Classical signatures, on purpose

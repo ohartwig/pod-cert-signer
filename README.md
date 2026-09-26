@@ -183,7 +183,8 @@ minutes. `/metrics` exposes:
 |---|---|
 | `pod_cert_signer_issued_total` | certificates written |
 | `pod_cert_signer_denied_total{reason}` | requests denied |
-| `pod_cert_signer_status_write_errors_total` | status writes the API refused |
+| `pod_cert_signer_status_write_errors_total` | status writes the API refused, conflicts excluded |
+| `pod_cert_signer_status_write_conflicts_total` | status writes that lost the race to the other replica (409); normal, one per request with two replicas |
 | `pod_cert_signer_issue_errors_total` | transient failures before a write (KMS, parsing) |
 | `pod_cert_signer_pending_requests` | unanswered requests at the last list |
 | `pod_cert_signer_pending_oldest_seconds` | age of the oldest unanswered request |

@@ -185,6 +185,19 @@ func TestAConflictIsRetriedByTheNextList(t *testing.T) {
 	if n := r.srv.Updates(); n != 1 {
 		t.Fatalf("%d accepted status writes, want 1", n)
 	}
+	// The lost write is a conflict, not an error: two replicas race for
+	// every request, and counting the loser as an error paged on the first
+	// renewal wave in production.
+	out := r.reg.Render()
+	for _, want := range []string{
+		"pod_cert_signer_status_write_conflicts_total 1",
+		"pod_cert_signer_status_write_errors_total 0",
+		"pod_cert_signer_issued_total 1",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q in\n%s", want, out)
+		}
+	}
 }
 
 // What Handle did is counted, and after the next list nothing is pending.
