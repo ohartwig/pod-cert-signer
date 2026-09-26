@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+---
+ignored:
+  # DL3018 wants every apk package pinned to an exact version. The image
+  # installs one package, ca-certificates-bundle, and lets the digest-pinned
+  # Wolfi base decide its version: an exact pin would mean shipping a stale
+  # trust store. Same reasoning as the estate's image repositories.
+  - DL3018
