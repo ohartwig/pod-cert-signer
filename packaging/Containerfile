@@ -18,7 +18,7 @@ FROM cgr.dev/chainguard/wolfi-base:latest@sha256:1d95114038f76513a9ace6fca107d55
 # Set by BuildKit for each leg of a multi-platform build.
 ARG TARGETARCH
 
-USER root
+USER 0
 RUN apk add --no-cache ca-certificates-bundle
 
 COPY dist/pod-cert-signer-linux-${TARGETARCH} /usr/local/bin/pod-cert-signer
