@@ -1,3 +1,15 @@
+## [0.2.1](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.2.0...v0.2.1) (2026-09-26)
+
+### :memo: Documentation
+
+* **examples:** the client pod runs hardened ([de84519](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/de845193bb28769bd15bff109284a41883bec3e9))
+* a README to deploy from, the design in the repository, and examples ([efb7bea](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/efb7beabe20f6028c2055a3ce52a220cf37819da))
+
+### :repeat: Chores
+
+* neutral names in tests and comments ([051c36e](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/051c36eb5c0f9331140b6cdc94a76d2a7f6b02b4))
+* module path github.com/ohartwig/pod-cert-signer ([671cc96](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/671cc96d38381665d9463be6ada2990046f91d0b))
+
 ## [0.2.0](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.1.2...v0.2.0) (2026-09-26)
 
 ### :sparkles: Features
