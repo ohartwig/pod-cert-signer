@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+#
+# Distributes the CA to every pod that trusts the signer. The name carries the
+# signer name as a prefix, with "/" turned into ":". Creating a signer-linked
+# bundle needs the "attest" verb on the signer name, which whoever deploys this
+# has; the signer itself never touches the bundle.
+apiVersion: certificates.k8s.io/v1
+kind: ClusterTrustBundle
+metadata:
+  name: example.com:workload:ca
+spec:
+  signerName: example.com/workload
+  trustBundle: |
+    -----BEGIN CERTIFICATE-----
+    (the same certificate as ca.crt in config.yaml)
+    -----END CERTIFICATE-----

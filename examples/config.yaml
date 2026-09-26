@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+#
+# The policy and the CA certificate from `pod-cert-signer init`. A change to
+# the policy restarts the signer; a policy it cannot parse keeps it down.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-cert-signer
+  namespace: cert-signer
+data:
+  policy.json: |
+    {
+      "signerName": "example.com/workload",
+      "trustDomain": "example.com",
+      "dnsNamesAnnotation": "example.com/dns-names",
+      "lifetime": "24h",
+      "refreshAt": 0.66,
+      "keyTypes": ["ECDSAP256", "ED25519"],
+      "grants": [
+        {"namespace": "team-a", "serviceAccount": "api", "usage": "server",
+         "dnsNames": ["api.team-a.svc", "api.team-a.svc.cluster.local"]},
+        {"namespace": "team-b", "serviceAccount": "worker", "usage": "client", "ou": "worker"}
+      ]
+    }
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    (output of pod-cert-signer init)
+    -----END CERTIFICATE-----
