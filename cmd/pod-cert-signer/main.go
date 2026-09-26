@@ -37,13 +37,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/controller"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kmssigner"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/controller"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/kmssigner"
+	"github.com/ohartwig/pod-cert-signer/kube"
+	"github.com/ohartwig/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 func main() {

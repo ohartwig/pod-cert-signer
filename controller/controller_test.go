@@ -17,13 +17,13 @@ import (
 	"testing"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/controller"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/fake/kubefake"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/controller"
+	"github.com/ohartwig/pod-cert-signer/fake/kubefake"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/kube"
+	"github.com/ohartwig/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 const signer = "koh.ole-hartwig.eu/workload"

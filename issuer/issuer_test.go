@@ -15,9 +15,9 @@ import (
 	"testing"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/ca"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/ca"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 var now = time.Date(2026, 9, 25, 12, 0, 0, 0, time.UTC)

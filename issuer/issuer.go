@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 // Request carries the fields of a PodCertificateRequest the decision uses.

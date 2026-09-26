@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/policy"
+	"github.com/ohartwig/pod-cert-signer/policy"
 )
 
 const head = `"signerName": "koh.ole-hartwig.eu/workload", "trustDomain": "koh.ole-hartwig.eu", "dnsNamesAnnotation": "koh.ole-hartwig.eu/dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"]`

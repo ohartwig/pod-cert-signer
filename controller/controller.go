@@ -18,9 +18,9 @@ import (
 	"log/slog"
 	"time"
 
-	"git.ole-hartwig.eu/devops/pod-cert-signer/issuer"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/kube"
-	"git.ole-hartwig.eu/devops/pod-cert-signer/metrics"
+	"github.com/ohartwig/pod-cert-signer/issuer"
+	"github.com/ohartwig/pod-cert-signer/kube"
+	"github.com/ohartwig/pod-cert-signer/metrics"
 )
 
 // API is the part of kube.Client the controller uses.
