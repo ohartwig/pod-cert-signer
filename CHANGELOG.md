@@ -1,3 +1,13 @@
+## [0.3.10](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.9...v0.3.10) (2026-09-27)
+
+### :repeat: Continuous Integrations
+
+* KI-Review als Gate pilotieren (ai-review-blocking) ([30a4539](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/30a4539c763b2a3dd234aac62e4f28fd14932a35))
+
+### :repeat: Chores
+
+* **repo-templates:** sync ([25062d4](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/25062d4944cd56997237826f6075aa361f478745))
+
 ## [0.3.9](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.8...v0.3.9) (2026-09-27)
 
 ### :repeat: Continuous Integrations
