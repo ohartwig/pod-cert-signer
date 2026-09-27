@@ -1,3 +1,13 @@
+## [0.3.9](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.8...v0.3.9) (2026-09-27)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/build-provenance to v2.0.180 ([ef7f6d5](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/ef7f6d58255fcd56f75ba4b70e6a1066506ab515))
+
+### :repeat: Chores
+
+* **deps:** update dependency mstruebing/editorconfig-checker to v3.11.3 ([9f3c734](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9f3c7343c49cb00d0ff3bc4e5f34f3b77e5aeea9))
+
 ## [0.3.8](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.7...v0.3.8) (2026-09-27)
 
 ### :repeat: Chores
