@@ -1,3 +1,14 @@
+## [0.3.11](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.10...v0.3.11) (2026-09-28)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.36.55 ([71ea69f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/71ea69fa488c082892ca9257789a1424fbd6d789))
+* **deps:** update ci components ([cbbd2a8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/cbbd2a8a5301084fe8006ea21463aa6ebf526a02))
+
+### :repeat: Chores
+
+* **deps:** update dependency mstruebing/editorconfig-checker to v3.11.3 ([8d7ff8b](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8d7ff8bfa304b4310060bb08a154947b045bfaa3))
+
 ## [0.3.10](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.9...v0.3.10) (2026-09-27)
 
 ### :repeat: Continuous Integrations
