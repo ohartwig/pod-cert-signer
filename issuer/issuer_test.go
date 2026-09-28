@@ -12,6 +12,7 @@ import (
 	"crypto/x509"
 	"errors"
 	"math/big"
+	"slices"
 	"testing"
 	"time"
 
@@ -47,7 +48,7 @@ func newIssuer(t *testing.T) (*issuer.Issuer, *x509.Certificate) {
 		t.Fatal(err)
 	}
 	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	der, err := ca.New(key, "test workload CA", p.TrustDomain, now, 5*365*24*time.Hour)
+	der, err := ca.New(key, "test workload CA", p.TrustDomain, nil, now, 5*365*24*time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,3 +254,85 @@ func TestTheCANameConstraintsRejectAPublicName(t *testing.T) {
 }
 
 func big1() *big.Int { return big.NewInt(1) }
+
+// A tenant CA: its own name constraints, a grant that serves and dials. The
+// proxy's certificate verifies for the short name the edge dials and as a
+// client, and the chain is refused for a neighbour's names even when the
+// certificate is built around the issuer.
+func TestATenantCAIssuesServerAndClientForShortNames(t *testing.T) {
+	p, err := policy.Parse([]byte(`{"signerName": "example.com/tenant-kunde-a", "trustDomain": "example.com",
+	  "dnsNamesAnnotation": "example.com/dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"],
+	  "grants": [{"namespace": "kunde-a", "serviceAccount": "caddy-proxy", "usage": "server-and-client",
+	              "dnsNames": ["caddy-proxy", "caddy-proxy.kunde-a.svc"]}]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	domains := []string{"kunde-a.svc", "kunde-a.svc.cluster.local", "caddy-proxy", "app", "db", "cache"}
+	if err := p.CheckNameConstraints(domains); err != nil {
+		t.Fatal(err)
+	}
+	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	der, err := ca.New(key, "kunde-a CA", p.TrustDomain, domains, now, 5*365*24*time.Hour)
+	if err != nil {
+		t.Fatal(err)
+	}
+	caCert, _ := x509.ParseCertificate(der)
+	if !slices.Equal(caCert.PermittedDNSDomains, domains) || !caCert.PermittedDNSDomainsCritical {
+		t.Fatalf("CA constraints %v critical=%v", caCert.PermittedDNSDomains, caCert.PermittedDNSDomainsCritical)
+	}
+	is := &issuer.Issuer{Policy: p, CA: issuer.CA{Cert: caCert, Signer: key}}
+	got, err := is.Issue(issuer.Request{Namespace: "kunde-a", ServiceAccountName: "caddy-proxy", StubPKCS10Request: stubCSR(t, p256(t))}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	leaf, _ := x509.ParseCertificate(got.CertificateDER)
+	roots := x509.NewCertPool()
+	roots.AddCert(caCert)
+	for _, ku := range []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth} {
+		if _, err := leaf.Verify(x509.VerifyOptions{Roots: roots, DNSName: "caddy-proxy", CurrentTime: now, KeyUsages: []x509.ExtKeyUsage{ku}}); err != nil {
+			t.Fatalf("verify as %v for the short name: %v", ku, err)
+		}
+	}
+
+	tmpl := &x509.Certificate{
+		SerialNumber: big1(), NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour),
+		DNSNames: []string{"caddy-proxy.kunde-b.svc"}, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+	}
+	foreign, err := x509.CreateCertificate(rand.Reader, tmpl, caCert, p256(t).Public(), key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fl, _ := x509.ParseCertificate(foreign)
+	_, err = fl.Verify(x509.VerifyOptions{Roots: roots, DNSName: "caddy-proxy.kunde-b.svc", CurrentTime: now})
+	var cie x509.CertificateInvalidError
+	if !errors.As(err, &cie) || cie.Reason != x509.CANotAuthorizedForThisName {
+		t.Fatalf("a neighbour's name must be refused by the chain, got %v", err)
+	}
+}
+
+// policy.PermittedDNS is what refuses a grant at startup; crypto/x509 is what
+// refuses the chain at the handshake. They must agree, or the signer either
+// issues certificates nobody accepts or refuses grants that would work.
+func TestPermittedDNSAgreesWithX509(t *testing.T) {
+	domains := []string{"kunde-a.svc", ".internal", "db"}
+	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	der, err := ca.New(key, "agreement CA", "example.com", domains, now, time.Hour*24)
+	if err != nil {
+		t.Fatal(err)
+	}
+	caCert, _ := x509.ParseCertificate(der)
+	roots := x509.NewCertPool()
+	roots.AddCert(caCert)
+	for _, name := range []string{"db", "x.db", "db.kunde-a.svc", "kunde-a.svc", "kunde-b.svc", "xkunde-a.svc", "internal", "a.internal", "dbx", "cache"} {
+		tmpl := &x509.Certificate{SerialNumber: big1(), NotBefore: now.Add(-time.Minute), NotAfter: now.Add(time.Hour), DNSNames: []string{name}}
+		d, err := x509.CreateCertificate(rand.Reader, tmpl, caCert, p256(t).Public(), key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		leaf, _ := x509.ParseCertificate(d)
+		_, verr := leaf.Verify(x509.VerifyOptions{Roots: roots, DNSName: name, CurrentTime: now, KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageAny}})
+		if x509ok, ours := verr == nil, policy.PermittedDNS(name, domains); x509ok != ours {
+			t.Errorf("%q: crypto/x509 says %v (%v), policy.PermittedDNS says %v", name, x509ok, verr, ours)
+		}
+	}
+}

@@ -56,7 +56,7 @@ func start(t *testing.T, tweak func(*kubefake.Server)) *rig {
 		t.Fatal(err)
 	}
 	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	der, _ := ca.New(key, "test CA", p.TrustDomain, time.Now(), 24*365*time.Hour)
+	der, _ := ca.New(key, "test CA", p.TrustDomain, nil, time.Now(), 24*365*time.Hour)
 	caCert, _ := x509.ParseCertificate(der)
 	reg := metrics.New()
 	c := &controller.Controller{

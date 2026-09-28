@@ -6,9 +6,11 @@
 // reviewed merge request, and it denies by default: a ServiceAccount no grant
 // names gets nothing.
 //
-// Parse is strict on purpose. An unknown key, a bare "*" namespace or a DNS
-// name outside the CA's name constraints is an error, and a signer that cannot
-// parse its policy issues nothing (design D6: fail closed).
+// Parse is strict on purpose. An unknown key, a bare "*" namespace or a
+// malformed DNS name is an error, and a signer that cannot parse its policy
+// issues nothing (design D6: fail closed). Whether the DNS names lie inside
+// the CA's name constraints is checked against the CA certificate itself, by
+// CheckNameConstraints, because only the certificate knows them.
 package policy
 
 import (
@@ -27,7 +29,17 @@ type Usage string
 const (
 	UsageClient Usage = "client"
 	UsageServer Usage = "server"
+	// UsageServerAndClient is for a workload that both serves and dials out
+	// with the same identity, like a proxy in front of an application.
+	UsageServerAndClient Usage = "server-and-client"
 )
+
+// Serves reports whether a certificate for this usage carries serverAuth
+// (and therefore DNS names).
+func (u Usage) Serves() bool { return u == UsageServer || u == UsageServerAndClient }
+
+// Dials reports whether a certificate for this usage carries clientAuth.
+func (u Usage) Dials() bool { return u == UsageClient || u == UsageServerAndClient }
 
 // KeyType names the subject key types the kubelet can generate. The API
 // accepts RSA3072, RSA4096, ECDSAP256, ECDSAP384, ECDSAP521 and ED25519.
@@ -38,11 +50,6 @@ var knownKeyTypes = map[KeyType]bool{
 	"ECDSAP256": true, "ECDSAP384": true, "ECDSAP521": true,
 	"ED25519": true,
 }
-
-// PermittedDNSSuffixes mirror the CA certificate's name constraints (design
-// D2). A grant that names anything else could never be honoured by a
-// constraint-aware client, so it is rejected at parse time rather than issued.
-var PermittedDNSSuffixes = []string{".svc", ".svc.cluster.local"}
 
 // Grant says which certificate one ServiceAccount (or one ServiceAccount name
 // in a family of namespaces) may receive.
@@ -149,30 +156,74 @@ func (g Grant) validate() error {
 	case g.ServiceAccount == "" || strings.Contains(g.ServiceAccount, "*"):
 		return errors.New("serviceAccount must be a single, literal name")
 	}
-	switch g.Usage {
-	case UsageClient:
-		if len(g.DNSNames) > 0 {
-			return errors.New("a client grant carries no dnsNames")
-		}
-	case UsageServer:
-		if len(g.DNSNames) == 0 {
-			return errors.New("a server grant needs at least one dnsName")
-		}
-	default:
-		return fmt.Errorf("usage %q is neither %q nor %q", g.Usage, UsageClient, UsageServer)
+	switch {
+	case g.Usage != UsageClient && g.Usage != UsageServer && g.Usage != UsageServerAndClient:
+		return fmt.Errorf("usage %q is none of %q, %q, %q", g.Usage, UsageClient, UsageServer, UsageServerAndClient)
+	case !g.Usage.Serves() && len(g.DNSNames) > 0:
+		return errors.New("a client grant carries no dnsNames")
+	case g.Usage.Serves() && len(g.DNSNames) == 0:
+		return fmt.Errorf("a %s grant needs at least one dnsName", g.Usage)
 	}
 	for _, n := range g.DNSNames {
-		if !PermittedDNS(n) {
-			return fmt.Errorf("dnsName %q is outside the CA's name constraints %v", n, PermittedDNSSuffixes)
+		if !validDNSName(n) {
+			return fmt.Errorf("dnsName %q is not a DNS name", n)
 		}
 	}
 	return nil
 }
 
-// PermittedDNS reports whether name lies under one of the constrained suffixes.
-func PermittedDNS(name string) bool {
-	for _, s := range PermittedDNSSuffixes {
-		if strings.HasSuffix(name, s) && len(name) > len(s) {
+// validDNSName accepts lower-case labels of letters, digits and hyphens, not
+// starting or ending with a hyphen. No wildcard, no trailing dot, no IP.
+func validDNSName(name string) bool {
+	if name == "" || len(name) > 253 {
+		return false
+	}
+	for label := range strings.SplitSeq(name, ".") {
+		if label == "" || len(label) > 63 || label[0] == '-' || label[len(label)-1] == '-' {
+			return false
+		}
+		for _, r := range label {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// CheckNameConstraints fails if any granted DNS name lies outside the CA
+// certificate's permitted DNS domains (design D2). A grant like that could
+// never be honoured: a constraint-aware client rejects the chain at the
+// handshake, where nobody looks. A CA without DNS constraints is refused as
+// well; the design requires them, and a signer should not quietly run
+// without.
+func (p *Policy) CheckNameConstraints(permitted []string) error {
+	if len(permitted) == 0 {
+		return errors.New("policy: the CA certificate carries no permitted DNS domains")
+	}
+	for i, g := range p.Grants {
+		for _, n := range g.DNSNames {
+			if !PermittedDNS(n, permitted) {
+				return fmt.Errorf("policy: grant %d (%s/%s): dnsName %q is outside the CA's name constraints %v", i, g.Namespace, g.ServiceAccount, n, permitted)
+			}
+		}
+	}
+	return nil
+}
+
+// PermittedDNS reports whether name satisfies one of the permitted domains,
+// with the semantics of RFC 5280 as Go's crypto/x509 applies them: a domain
+// "svc" permits "svc" itself and every name below it; a domain written with a
+// leading dot, ".svc", permits only names below it.
+func PermittedDNS(name string, permitted []string) bool {
+	for _, d := range permitted {
+		if sub, ok := strings.CutPrefix(d, "."); ok {
+			if strings.HasSuffix(name, "."+sub) {
+				return true
+			}
+			continue
+		}
+		if name == d || strings.HasSuffix(name, "."+d) {
 			return true
 		}
 	}

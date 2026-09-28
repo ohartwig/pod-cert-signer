@@ -27,7 +27,7 @@ func TestACACertificateSignedThroughKMSVerifies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	der, err := ca.New(s, "test CA", "example.org", time.Now(), 24*time.Hour)
+	der, err := ca.New(s, "test CA", "example.org", nil, time.Now(), 24*time.Hour)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestAKMSFailureIsAnError(t *testing.T) {
 	f := kmsfake.New()
 	s, _ := kmssigner.New(context.Background(), f, "k")
 	f.SignErr = errors.New("ThrottlingException")
-	if _, err := ca.New(s, "x", "example.org", time.Now(), time.Hour); err == nil || !strings.Contains(err.Error(), "ThrottlingException") {
+	if _, err := ca.New(s, "x", "example.org", nil, time.Now(), time.Hour); err == nil || !strings.Contains(err.Error(), "ThrottlingException") {
 		t.Fatalf("want the KMS error, got %v", err)
 	}
 }

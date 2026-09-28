@@ -23,9 +23,11 @@ func TestParseRejects(t *testing.T) {
 		{"star service account", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "*", "usage": "client"}]}`, "literal name"},
 		{"server without names", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server"}]}`, "at least one dnsName"},
 		{"client with names", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "client", "dnsNames": ["b.a.svc"]}]}`, "no dnsNames"},
-		{"public dns name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": ["example.com"]}]}`, "name constraints"},
-		{"bare suffix as name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": [".svc"]}]}`, "name constraints"},
-		{"unknown usage", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "both"}]}`, "neither"},
+		{"server-and-client without names", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server-and-client"}]}`, "at least one dnsName"},
+		{"bare suffix as name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": [".svc"]}]}`, "not a DNS name"},
+		{"wildcard name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": ["*.a.svc"]}]}`, "not a DNS name"},
+		{"upper-case name", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": ["DB"]}]}`, "not a DNS name"},
+		{"unknown usage", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "both"}]}`, "none of"},
 		{"lifetime below floor", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "30m", "refreshAt": 0.66, "keyTypes": ["ECDSAP256"], "grants": []}`, "API floor"},
 		{"refreshAt out of range", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 1, "keyTypes": ["ECDSAP256"], "grants": []}`, "refreshAt"},
 		{"refreshAt too close to the end", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.9, "keyTypes": ["ECDSAP256"], "grants": []}`, "0.83"},
@@ -65,6 +67,57 @@ func TestLookupPrefersTheExactNamespace(t *testing.T) {
 		}
 		if got != tc.wantOU {
 			t.Errorf("%s: got grant %q, want %q", tc.ns, got, tc.wantOU)
+		}
+	}
+}
+
+// The grants are held against the CA certificate's own constraints, so the
+// same policy file is fine under one CA and refused under another. A tenant
+// CA permits its namespace and the short names its hops dial, and nothing of
+// a neighbour.
+func TestCheckNameConstraints(t *testing.T) {
+	tenant := []string{"kunde-a.svc", "kunde-a.svc.cluster.local", "db", "cache", "caddy-proxy"}
+	workload := []string{"svc", "svc.cluster.local"}
+	for _, tc := range []struct {
+		name      string
+		permitted []string
+		dnsNames  string
+		wantErr   string
+	}{
+		{"short name under a tenant CA", tenant, `"db", "db.kunde-a.svc"`, ""},
+		{"fqdn under a tenant CA", tenant, `"caddy-proxy.kunde-a.svc.cluster.local"`, ""},
+		{"neighbour namespace under a tenant CA", tenant, `"db.kunde-b.svc"`, "outside"},
+		{"short name nobody listed", tenant, `"app"`, "outside"},
+		{"short name under the workload CA", workload, `"db"`, "outside"},
+		{"service name under the workload CA", workload, `"lapi.monitoring.svc"`, ""},
+		{"public name under the workload CA", workload, `"example.com"`, "outside"},
+		{"CA without DNS constraints", nil, `"db"`, "no permitted DNS domains"},
+	} {
+		p, err := policy.Parse([]byte(`{` + head + `, "grants": [{"namespace": "kunde-a", "serviceAccount": "db", "usage": "server", "dnsNames": [` + tc.dnsNames + `]}]}`))
+		if err != nil {
+			t.Fatalf("%s: %v", tc.name, err)
+		}
+		err = p.CheckNameConstraints(tc.permitted)
+		switch {
+		case tc.wantErr == "" && err != nil:
+			t.Errorf("%s: unexpected error %v", tc.name, err)
+		case tc.wantErr != "" && (err == nil || !strings.Contains(err.Error(), tc.wantErr)):
+			t.Errorf("%s: want an error containing %q, got %v", tc.name, tc.wantErr, err)
+		}
+	}
+}
+
+func TestUsageEKUs(t *testing.T) {
+	for _, tc := range []struct {
+		u             policy.Usage
+		serves, dials bool
+	}{
+		{policy.UsageClient, false, true},
+		{policy.UsageServer, true, false},
+		{policy.UsageServerAndClient, true, true},
+	} {
+		if tc.u.Serves() != tc.serves || tc.u.Dials() != tc.dials {
+			t.Errorf("%s: Serves=%v Dials=%v, want %v %v", tc.u, tc.u.Serves(), tc.u.Dials(), tc.serves, tc.dials)
 		}
 	}
 }

@@ -158,9 +158,12 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 	if g.OU != "" {
 		subject.OrganizationalUnit = []string{g.OU}
 	}
-	eku := x509.ExtKeyUsageClientAuth
-	if g.Usage == policy.UsageServer {
-		eku = x509.ExtKeyUsageServerAuth
+	var eku []x509.ExtKeyUsage
+	if g.Usage.Serves() {
+		eku = append(eku, x509.ExtKeyUsageServerAuth)
+	}
+	if g.Usage.Dials() {
+		eku = append(eku, x509.ExtKeyUsageClientAuth)
 	}
 	tmpl := &x509.Certificate{
 		SerialNumber:          serial,
@@ -168,7 +171,7 @@ func (is *Issuer) Issue(req Request, now time.Time) (*Issued, error) {
 		NotBefore:             notBefore,
 		NotAfter:              notAfter,
 		KeyUsage:              x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{eku},
+		ExtKeyUsage:           eku,
 		BasicConstraintsValid: true,
 		IsCA:                  false,
 		DNSNames:              dnsNames,
@@ -192,7 +195,7 @@ func grantedDNSNames(g *policy.Grant, requested string) ([]string, error) {
 			names = append(names, n)
 		}
 	}
-	if g.Usage == policy.UsageClient {
+	if !g.Usage.Serves() {
 		if len(names) > 0 {
 			return nil, &Denied{ReasonDNSNameNotGranted, "a client grant carries no DNS names"}
 		}

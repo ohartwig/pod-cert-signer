@@ -85,9 +85,24 @@ place; software that reads its certificate once has to be told to reload.
      -cn "Example workload CA" -trust-domain example.com > ca.crt
    ```
 
-   The certificate carries critical name constraints: DNS names under `.svc`
-   and `.svc.cluster.local`, URIs under `spiffe://<trust-domain>`, path length
+   The certificate carries critical name constraints: DNS names under `svc`
+   and `svc.cluster.local`, URIs under `spiffe://<trust-domain>`, path length
    0. Review it and commit it; it is your trust anchor.
+
+   For a CA that serves one namespace only, name its domains with
+   `-dns-domain`, repeated: the namespace's service domains and the short
+   service names its clients dial. Nothing of another namespace then verifies
+   under it.
+
+   ```bash
+   KMS_KEY_ID=alias/pod-cert-signer-team-a pod-cert-signer init \
+     -cn "team-a CA" -trust-domain example.com \
+     -dns-domain team-a.svc -dns-domain team-a.svc.cluster.local \
+     -dns-domain api -dns-domain db > ca.crt
+   ```
+
+   Run one signer per such CA, each with its own key, policy and signer
+   name. A signer then holds one CA and can sign for its namespace only.
 3. **Deploy.** [`examples/`](examples/) has the namespace, the RBAC, the policy
    ConfigMap (policy and `ca.crt`), the ClusterTrustBundle and the Deployment.
    Put the CA certificate into both the ConfigMap and the ClusterTrustBundle.
@@ -134,9 +149,9 @@ A grant:
 |---|---|
 | `namespace` | An exact namespace, or a prefix ending in `*` (`tenant-*`). A bare `*` is rejected. An exact grant wins over a prefix. |
 | `serviceAccount` | One literal ServiceAccount name. |
-| `usage` | `client` (`clientAuth`) or `server` (`serverAuth`). |
+| `usage` | `client` (`clientAuth`), `server` (`serverAuth`) or `server-and-client` (both, for a workload that serves and dials with one identity). |
 | `ou` | Optional subject OU, for servers that authorise clients by OU. |
-| `dnsNames` | Server grants only, required there: the names the ServiceAccount may claim, under `.svc` or `.svc.cluster.local`. A request for a name outside this list is denied as a whole, not trimmed. |
+| `dnsNames` | `server` and `server-and-client` grants only, required there: the names the ServiceAccount may claim. At startup every name is checked against the CA certificate's name constraints, and a name outside them keeps the signer down. A request for a name outside this list is denied as a whole, not trimmed. |
 
 The signer exits when the policy file changes, so the Deployment restarts it
 with the new version and a broken one shows as a crash loop.
@@ -148,7 +163,7 @@ with the new version and a broken one shows as a crash loop.
 | Subject | `CN=<namespace>/<serviceaccount>`, `OU=<grant.ou>` if set |
 | SAN URI | `spiffe://<trustDomain>/ns/<namespace>/sa/<serviceaccount>` |
 | SAN DNS | the requested names, if all of them are granted |
-| Extended key usage | `clientAuth` or `serverAuth` |
+| Extended key usage | `clientAuth`, `serverAuth` or both, from the grant's `usage` |
 | Validity | `notBefore` = now, whole seconds, minus one minute; `notAfter` = `notBefore` + min(`lifetime`, `maxExpirationSeconds`) |
 | Renewal | `beginRefreshAt` = `notBefore` + `refreshAt` × lifetime |
 | Serial | 128 random bits |
