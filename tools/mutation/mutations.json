@@ -77,5 +77,20 @@
   "test": "TestAConflictIsRetriedByTheNextList",
   "from": "\tif kube.IsConflict(err) {",
   "to": "\tif false {"
+ },
+ {
+  "check": "policy: a granted DNS name outside the CA's constraints is refused",
+  "file": "policy/policy.go",
+  "test": "TestCheckNameConstraints",
+  "from": "\t\t\tif !PermittedDNS(n, permitted) {",
+  "to": "\t\t\tif false && !PermittedDNS(n, permitted) {"
+ },
+ {
+  "check": "policy: server-and-client also dials (clientAuth)",
+  "file": "policy/policy.go",
+  "test": "TestATenantCAIssuesServerAndClientForShortNames",
+  "pkg": "./issuer",
+  "from": "func (u Usage) Dials() bool { return u == UsageClient || u == UsageServerAndClient }",
+  "to": "func (u Usage) Dials() bool { return u == UsageClient }"
  }
 ]

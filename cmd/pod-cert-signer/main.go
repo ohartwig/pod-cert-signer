@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -112,6 +113,11 @@ func run(ctx context.Context, log *slog.Logger) error {
 	if !signer.Public().(*ecdsa.PublicKey).Equal(caCert.PublicKey) {
 		return errors.New("the CA certificate does not belong to the KMS key")
 	}
+	// The grants against the CA's own name constraints: a DNS name the CA may
+	// not certify would give a pod a certificate every client rejects.
+	if err := pol.CheckNameConstraints(caCert.PermittedDNSDomains); err != nil {
+		return err
+	}
 	api, err := kube.InCluster()
 	if err != nil {
 		return err
@@ -178,6 +184,8 @@ func initCA(ctx context.Context, args []string) error {
 	cn := fs.String("cn", "", "subject common name of the CA (required)")
 	td := fs.String("trust-domain", "", "SPIFFE trust domain for the URI name constraint (required)")
 	validity := fs.Duration("validity", 5*365*24*time.Hour, "CA certificate validity")
+	var domains stringList
+	fs.Var(&domains, "dns-domain", "permitted DNS domain of the CA; repeat it (default: svc and svc.cluster.local)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -188,9 +196,15 @@ func initCA(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	der, err := ca.New(signer, *cn, *td, time.Now(), *validity)
+	der, err := ca.New(signer, *cn, *td, domains, time.Now(), *validity)
 	if err != nil {
 		return err
 	}
 	return pem.Encode(os.Stdout, &pem.Block{Type: "CERTIFICATE", Bytes: der})
 }
+
+// stringList is a flag that may be given more than once.
+type stringList []string
+
+func (l *stringList) String() string     { return strings.Join(*l, ",") }
+func (l *stringList) Set(v string) error { *l = append(*l, v); return nil }

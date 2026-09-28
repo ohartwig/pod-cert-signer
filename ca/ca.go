@@ -16,16 +16,24 @@ import (
 	"time"
 )
 
-// PermittedDNSDomains are the name constraints of design D2. In Go's
-// semantics a constraint "svc" permits "svc" and every name below it.
+// PermittedDNSDomains are the default name constraints of design D2, for a
+// CA whose clients come from any namespace. In Go's semantics a constraint
+// "svc" permits "svc" and every name below it.
 var PermittedDNSDomains = []string{"svc", "svc.cluster.local"}
 
 // New signs a CA certificate for the key behind signer. The certificate may
-// sign leaves only (path length 0), only for in-cluster DNS names and only
+// sign leaves only (path length 0), only for the given DNS domains and only
 // for identities in the given SPIFFE trust domain. The constraints are
 // marked critical, so a verifier that does not understand them rejects the
 // chain instead of ignoring them.
-func New(signer crypto.Signer, cn, trustDomain string, now time.Time, validity time.Duration) ([]byte, error) {
+//
+// dnsDomains empty means PermittedDNSDomains. A CA for one namespace names
+// that namespace's service domains and the short service names its clients
+// dial, so that no other namespace's names verify under it.
+func New(signer crypto.Signer, cn, trustDomain string, dnsDomains []string, now time.Time, validity time.Duration) ([]byte, error) {
+	if len(dnsDomains) == 0 {
+		dnsDomains = PermittedDNSDomains
+	}
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
 		return nil, err
@@ -40,7 +48,7 @@ func New(signer crypto.Signer, cn, trustDomain string, now time.Time, validity t
 		IsCA:                        true,
 		MaxPathLenZero:              true,
 		PermittedDNSDomainsCritical: true,
-		PermittedDNSDomains:         PermittedDNSDomains,
+		PermittedDNSDomains:         dnsDomains,
 		PermittedURIDomains:         []string{trustDomain},
 	}
 	return x509.CreateCertificate(rand.Reader, tmpl, tmpl, signer.Public(), signer)

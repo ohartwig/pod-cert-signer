@@ -36,8 +36,18 @@ secret this is meant to remove.
 The CA certificate permits DNS names under `svc` and `svc.cluster.local` and
 URIs in the trust domain, marked critical, with path length 0. Even a signer
 whose policy check was bypassed cannot mint a certificate for a public name
-that a constraint-aware client would accept. The policy parser rejects grants
-for names outside these constraints, so the two can never disagree.
+that a constraint-aware client would accept.
+
+A CA for a single namespace narrows this with `init -dns-domain`: the
+namespace's service domains plus the short names its clients dial (a short
+name like `db` is a single-label domain and lies outside `svc`). Such a CA
+cannot certify a neighbour's names at all, so isolation between namespaces is
+a property of the trust root, not a setting on each server.
+
+At startup the signer checks every granted DNS name against the constraints
+*of the CA certificate it loaded*, with RFC 5280 semantics, and refuses to run
+if one lies outside. A test holds that check equal to `crypto/x509`'s verdict,
+so the two can never disagree.
 
 ### 3. A single tier
 
