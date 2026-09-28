@@ -1,3 +1,13 @@
+## [0.4.0](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.11...v0.4.0) (2026-09-28)
+
+### :sparkles: Features
+
+* CAs for one namespace, grants checked against the CA, server-and-client ([12b30b0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/12b30b05b3971b3b3e9f31d6b086bc2de5079d5d))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.36.56 ([fba031b](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/fba031b0fd67f51a7eb860679cbdd72a124f1106))
+
 ## [0.3.11](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.3.10...v0.3.11) (2026-09-28)
 
 ### :repeat: Continuous Integrations
