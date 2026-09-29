@@ -1,3 +1,9 @@
+## [0.4.6](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.5...v0.4.6) (2026-09-29)
+
+### :bug: Fixes
+
+* **ci:** a release starts the pinup fast lane, after the binaries are published ([4a22409](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/4a22409cd3eda3853a36f390860cba7bf8ff4a6b))
+
 ## [0.4.5](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.4...v0.4.5) (2026-09-29)
 
 ### :repeat: Continuous Integrations
