@@ -1,3 +1,14 @@
+## [0.4.5](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.4...v0.4.5) (2026-09-29)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to e43e41f ([268607c](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/268607ca659ab92e89ba67740ce560022a9c782d))
+* **deps:** update ci components ([95432d3](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/95432d3679bc572682887f52d9ce13f43a04e4e4))
+
+### :repeat: Chores
+
+* **deps:** update dependency devops/ci-cd-components/composed-default-pipelines to v2.21.10 ([2baff8d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2baff8d9c2bd89ce366d595c6ab6658c4778364f))
+
 ## [0.4.4](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.3...v0.4.4) (2026-09-28)
 
 ### :repeat: Continuous Integrations
