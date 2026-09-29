@@ -41,6 +41,13 @@ include:
       # these alone cut no release.
       non-release-paths: ['README.md', '.gitlab/**', '.gitsigners', '.gitsigners.d/**', 'LICENSES/**', '.markdownlint.jsonc']
       mr-comments: 'true'
+      # The fast lane: after a release, pinup/runner bumps the consumers
+      # (devops/images/pod-cert-signer, whose own release then reaches
+      # koh-gitops) within minutes instead of at the four-hourly scan.
+      # release:trigger-pinup waits for `release`, and `release` needs
+      # upload:package-registry below - so the lane starts only once the
+      # binaries it will look up are published. tools/fastlane checks both.
+      trigger-pinup: 'true'
   # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
   # role (its trust covers devops/* on main).
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2.0.183

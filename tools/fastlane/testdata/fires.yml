@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 Kai Ole Hartwig <mail@ole-hartwig.eu>
+# SPDX-License-Identifier: Apache-2.0
+include:
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/release-tools/yasrt@2
+    inputs:
+      stage-release: release
+      trigger-pinup: 'true'
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/other/thing@1
+
+upload:package-registry:
+  stage: build
+
+release:
+  needs: [version, build:binaries, upload:package-registry]
