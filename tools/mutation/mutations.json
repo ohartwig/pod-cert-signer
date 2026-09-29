@@ -92,5 +92,19 @@
   "pkg": "./issuer",
   "from": "func (u Usage) Dials() bool { return u == UsageClient || u == UsageServerAndClient }",
   "to": "func (u Usage) Dials() bool { return u == UsageClient }"
+ },
+ {
+  "check": "fast lane: the yasrt include must switch the trigger on",
+  "file": "tools/fastlane/fastlane.go",
+  "test": "TestFixtures",
+  "from": "\t\t\t\treturn v == \"true\"",
+  "to": "\t\t\t\treturn v != \"\""
+ },
+ {
+  "check": "fast lane: the tag must wait for the publish",
+  "file": "tools/fastlane/fastlane.go",
+  "test": "TestFixtures",
+  "from": "\tif !slices.Contains(needs, PublishJob) {",
+  "to": "\tif !slices.Contains(needs, PublishJob) && false {"
  }
 ]
