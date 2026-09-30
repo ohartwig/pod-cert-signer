@@ -19,7 +19,7 @@ variables:
   GOPATH: ${CI_PROJECT_DIR}/.go
 
 include:
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/composed-default-pipelines/go@2.21.21
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/composed-default-pipelines/go@2.21.22
     inputs:
       # Pilot der blockierenden KI-Review, 2026-09-27 bis 2026-10-11 (Pilot-Issue
       # in devops/ci-cd-components/ai-tools): ein Veto macht ai:review bei
