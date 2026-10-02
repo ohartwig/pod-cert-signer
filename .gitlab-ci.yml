@@ -50,7 +50,7 @@ include:
       trigger-pinup: 'true'
   # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
   # role (its trust covers devops/* on main).
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2.0.190
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2.0.191
     inputs:
       stage: build
       artifact-file: dist/SHA256SUMS
