@@ -1,3 +1,20 @@
+## [0.4.10](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.9...v0.4.10) (2026-10-02)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.4 ([796aa7f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/796aa7f4af4c33aa94b7064ab516bfdc9571b503))
+* **deps:** update dependency devops/ci-cd-components/build-provenance to v2.0.192 ([54dcc88](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/54dcc8875ec2471b0fd4b3e4986fc04218c8a9af))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 00a20bb ([7e877d9](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7e877d933f2368191e0cc617e2e9d6159aaafec0))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.3 ([c4b84cb](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c4b84cba3cdd8a0a738c1d5216418f07529e2548))
+* **deps:** update dependency devops/ci-cd-components/build-provenance to v2.0.191 ([50cd6bd](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/50cd6bdbd00ada9fa2f4bd5b0e3c452eb0cd7d13))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.2 ([573f9aa](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/573f9aae9d889bc1050140680d26d55a5e193c29))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 61a0194 ([702f968](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/702f968209d17995f7fc119c998394ac065e4147))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.1 ([6b78bd6](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6b78bd6845de195458c156803c9e1420947446ce))
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to 824f77d ([def5100](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/def5100d986b3f5c1f291b2e4e5aab8815a6f7e4))
+
 ## [0.4.9](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.8...v0.4.9) (2026-10-01)
 
 ### :repeat: Continuous Integrations
