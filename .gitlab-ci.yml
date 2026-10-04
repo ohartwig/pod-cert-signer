@@ -62,12 +62,12 @@ include:
       additional-script-begin: '[ "$RELEASE_STATUS" = "release" ] || { echo "skip: ${RELEASE_STATUS:-unknown}"; exit 0; }'
   # Not part of the go composed pipeline. .gitsigners and SPDX headers without
   # the jobs that read them are decoration, not gates.
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1.38.13
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/commit-signing-verify@1.38.14
     inputs:
       stage: quick
   # The licence gate, live since lint-tools 1.36.45: a multi-arch reuse image
   # and no PHP-only rule (GDG-50). allow_failure is taken back below.
-  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/lint-reuse@1.38.13
+  - component: ${CI_SERVER_HOST}/devops/ci-cd-components/lint-tools/lint-reuse@1.38.14
     inputs:
       stage: quick
       rules-config:
