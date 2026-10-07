@@ -1,3 +1,14 @@
+## [0.4.17](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.16...v0.4.17) (2026-10-07)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([4a37e2a](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/4a37e2a1bf9065ff694d4c594339bce59f0e59ef))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.27 ([480a161](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/480a16156279dea2d70cac640309c20956530aed))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to e141596 ([8acb3bf](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8acb3bf8d3790b58b6da4659b8725f78bdb34029))
+
 ## [0.4.16](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.15...v0.4.16) (2026-10-07)
 
 ### :repeat: Continuous Integrations
