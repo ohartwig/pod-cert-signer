@@ -1,3 +1,13 @@
+## [0.4.18](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.17...v0.4.18) (2026-10-08)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.38.28 ([26e9921](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/26e99217ff3dea50b87672fea56d330c7b1d8a77))
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to 05d2416 ([d3b0e71](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/d3b0e71a69be974ae46dccd8a7e78c0e30b91d2f))
+
 ## [0.4.17](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.16...v0.4.17) (2026-10-07)
 
 ### :bug: Fixes
