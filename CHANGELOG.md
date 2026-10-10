@@ -1,3 +1,9 @@
+## [0.4.20](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.19...v0.4.20) (2026-10-10)
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to 1c451d4 ([51f7a82](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/51f7a82ae863087956ce9052851d7cfc34dc0c0e))
+
 ## [0.4.19](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.18...v0.4.19) (2026-10-09)
 
 ### :bug: Fixes
