@@ -1,3 +1,13 @@
+## [0.4.21](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.20...v0.4.21) (2026-10-11)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([3e02012](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/3e0201233b0762a7485a4d8c073204645c2ad601))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 7c330e9 ([0e194cf](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/0e194cf9d58d92bbb61c848d2b2abf69dcfcc2c7))
+
 ## [0.4.20](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.19...v0.4.20) (2026-10-10)
 
 ### :repeat: Chores
