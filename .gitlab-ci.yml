@@ -13,7 +13,15 @@
 stages: [quick, test, version, build, release, sign]
 
 variables:
-  GO_IMAGE: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
+  # The exact Go version, not the rolling 1.27: a Go patch in
+  # devops/images/golang changes no file here, so with the rolling tag nothing
+  # cut a release and the binary kept the old standard library. pinup offers
+  # the next patch tag once the image carries it, as fix(deps), which releases
+  # (pinup/runner!40). The tag on a variable of its own: the annotation
+  # manager reads a quoted version, not an image reference.
+  # pinup: datasource=docker depName=registry.ole-hartwig.eu/devops/images/golang
+  GOLANG_IMAGE_TAG: "1.27.2"
+  GO_IMAGE: "registry.ole-hartwig.eu/devops/images/golang:$GOLANG_IMAGE_TAG"
   GOTOOLCHAIN: local
   GOFLAGS: -mod=readonly
   GOPATH: ${CI_PROJECT_DIR}/.go
@@ -29,7 +37,7 @@ include:
       # Rueckweg: diese Zeile loeschen.
       ai-review-blocking: 'true'
       working-directory: '.'
-      go-image: registry.ole-hartwig.eu/devops/images/golang:1.27@sha256:9940fe57fea2f02ccd865e5cd584749a9b5726a717b364b4bdf39e4045b49b76
+      go-image: $GO_IMAGE
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/release-tools/yasrt@2
     inputs:
       stage-version: version
