@@ -1,3 +1,9 @@
+## [0.4.23](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.22...v0.4.23) (2026-10-12)
+
+### :bug: Fixes
+
+* **deps:** build with Go 1.27.2 and pin the exact Go tag ([6fbc2c0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6fbc2c09db6d0e631ffbcd6ec6bd2e441fd6fe20))
+
 ## [0.4.22](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.21...v0.4.22) (2026-10-12)
 
 ### :repeat: Chores
