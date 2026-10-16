@@ -15,7 +15,10 @@ short-lived leaf with a CA key that lives in AWS KMS and never leaves it, and
 writes the chain into the request's status. It never sees a private key,
 neither the pod's nor its own.
 
-Why it is built the way it is: [`docs/design.md`](docs/design.md).
+Why it is built the way it is: [`docs/design.md`](docs/design.md). The
+threat model (assets, trust boundaries, what the signer mitigates and what it
+leaves to the platform) is kept in the operator's handbook under
+`igs/security/threat-models/pod-cert-signer.md`.
 
 ## Requirements
 

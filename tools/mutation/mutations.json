@@ -106,5 +106,26 @@
   "test": "TestFixtures",
   "from": "\tif !slices.Contains(needs, PublishJob) {",
   "to": "\tif !slices.Contains(needs, PublishJob) && false {"
+ },
+ {
+  "check": "policy: the same identity granted twice is refused",
+  "file": "policy/policy.go",
+  "test": "TestParseRejects",
+  "from": "\tif g.Namespace == o.Namespace {\n\t\treturn errors.New(\"the same namespace and serviceAccount twice",
+  "to": "\tif false {\n\t\treturn errors.New(\"the same namespace and serviceAccount twice"
+ },
+ {
+  "check": "policy: nested prefix grants are refused",
+  "file": "policy/policy.go",
+  "test": "TestParseRejects",
+  "from": "\tif aPrefix && bPrefix && (strings.HasPrefix(a, b) || strings.HasPrefix(b, a)) {",
+  "to": "\tif false && aPrefix && bPrefix && (strings.HasPrefix(a, b) || strings.HasPrefix(b, a)) {"
+ },
+ {
+  "check": "policy: the longest prefix wins, not the first in the file",
+  "file": "policy/policy.go",
+  "test": "TestLookupPrefersTheLongestPrefix",
+  "from": "&& strings.HasPrefix(namespace, base) && len(base) > longest {",
+  "to": "&& strings.HasPrefix(namespace, base) && (prefix == nil || longest < 0) {"
  }
 ]

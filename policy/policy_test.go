@@ -37,6 +37,9 @@ func TestParseRejects(t *testing.T) {
 		{"trust domain with a path", `{"signerName": "s", "trustDomain": "t.example/x", "dnsNamesAnnotation": "t.example/dns", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ED25519"], "grants": []}`, "bare host name"},
 		{"annotation without domain", `{"signerName": "s", "trustDomain": "t.example", "dnsNamesAnnotation": "dns-names", "lifetime": "24h", "refreshAt": 0.66, "keyTypes": ["ED25519"], "grants": []}`, "domain-prefixed"},
 		{"trailing data", `{` + head + `, "grants": []} {}`, "trailing"},
+		{"same identity twice", `{` + head + `, "grants": [{"namespace": "a", "serviceAccount": "b", "usage": "client"}, {"namespace": "a", "serviceAccount": "b", "usage": "server", "dnsNames": ["b.a.svc"]}]}`, "twice"},
+		{"nested prefix grants", `{` + head + `, "grants": [{"namespace": "tenant-*", "serviceAccount": "agent", "usage": "client"}, {"namespace": "tenant-c-*", "serviceAccount": "agent", "usage": "client"}]}`, "overlapping prefix"},
+		{"nested prefix grants, narrow first", `{` + head + `, "grants": [{"namespace": "tenant-c-*", "serviceAccount": "agent", "usage": "client"}, {"namespace": "tenant-*", "serviceAccount": "agent", "usage": "client"}]}`, "overlapping prefix"},
 	} {
 		_, err := policy.Parse([]byte(tc.doc))
 		if err == nil || !strings.Contains(err.Error(), tc.want) {
@@ -67,6 +70,38 @@ func TestLookupPrefersTheExactNamespace(t *testing.T) {
 		}
 		if got != tc.wantOU {
 			t.Errorf("%s: got grant %q, want %q", tc.ns, got, tc.wantOU)
+		}
+	}
+}
+
+// Two grants for different ServiceAccounts, or an exact namespace next to the
+// family that covers it, are not shadows: Lookup can tell them apart.
+func TestParseAcceptsGrantsLookupCanOrder(t *testing.T) {
+	_, err := policy.Parse([]byte(`{` + head + `, "grants": [
+	  {"namespace": "tenant-*", "serviceAccount": "agent", "usage": "client"},
+	  {"namespace": "tenant-*", "serviceAccount": "proxy", "usage": "client"},
+	  {"namespace": "tenant-c", "serviceAccount": "agent", "usage": "client"},
+	  {"namespace": "other-*", "serviceAccount": "agent", "usage": "client"}]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Among prefix grants the longest wins, whatever the order in the file. Parse
+// refuses nested prefixes for the same ServiceAccount, so this can only arise
+// in a policy built in code; the rule holds there too, so that order never
+// decides anywhere.
+func TestLookupPrefersTheLongestPrefix(t *testing.T) {
+	for _, order := range [][]string{{"tenant-*", "tenant-c-*"}, {"tenant-c-*", "tenant-*"}} {
+		p := &policy.Policy{}
+		for _, ns := range order {
+			p.Grants = append(p.Grants, policy.Grant{Namespace: ns, ServiceAccount: "agent", Usage: policy.UsageClient, OU: ns})
+		}
+		if g := p.Lookup("tenant-c-blue", "agent"); g == nil || g.OU != "tenant-c-*" {
+			t.Errorf("order %v: tenant-c-blue got %+v, want the tenant-c-* grant", order, g)
+		}
+		if g := p.Lookup("tenant-a", "agent"); g == nil || g.OU != "tenant-*" {
+			t.Errorf("order %v: tenant-a got %+v, want the tenant-* grant", order, g)
 		}
 	}
 }
