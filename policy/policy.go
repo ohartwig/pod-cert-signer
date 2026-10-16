@@ -141,8 +141,37 @@ func Parse(data []byte) (*Policy, error) {
 		if err := g.validate(); err != nil {
 			return nil, fmt.Errorf("policy: grant %d (%s/%s): %w", i, g.Namespace, g.ServiceAccount, err)
 		}
+		// A grant that another grant shadows is a grant nobody can reason
+		// about from the file: the reader assumes the last word counts,
+		// Lookup takes the first. Both are refused so the file stays the
+		// unambiguous record of who gets what (design D6).
+		for j := range i {
+			if err := p.Grants[j].shadows(g); err != nil {
+				return nil, fmt.Errorf("policy: grant %d (%s/%s) and grant %d (%s/%s): %w", j, p.Grants[j].Namespace, p.Grants[j].ServiceAccount, i, g.Namespace, g.ServiceAccount, err)
+			}
+		}
 	}
 	return &p, nil
+}
+
+// shadows reports whether two grants for the same ServiceAccount cannot be
+// told apart by Lookup: the same namespace twice, or two prefix grants where
+// one family lies inside the other ("tenant-*" and "tenant-c-*"). An exact
+// namespace next to a prefix that covers it is not a shadow: the exact one
+// wins by rule, and the test for Lookup proves it.
+func (g Grant) shadows(o Grant) error {
+	if g.ServiceAccount != o.ServiceAccount {
+		return nil
+	}
+	if g.Namespace == o.Namespace {
+		return errors.New("the same namespace and serviceAccount twice; only the first would ever apply")
+	}
+	a, aPrefix := strings.CutSuffix(g.Namespace, "*")
+	b, bPrefix := strings.CutSuffix(o.Namespace, "*")
+	if aPrefix && bPrefix && (strings.HasPrefix(a, b) || strings.HasPrefix(b, a)) {
+		return errors.New("overlapping prefix grants; name the narrower family under its own serviceAccount or drop one")
+	}
+	return nil
 }
 
 func (g Grant) validate() error {
@@ -231,9 +260,14 @@ func PermittedDNS(name string, permitted []string) bool {
 }
 
 // Lookup returns the grant for a ServiceAccount, or nil. An exact namespace
-// wins over a prefix, so a narrower grant can never be shadowed by a family.
+// wins over a prefix, and among prefixes the longest wins, so a narrower
+// grant can never be shadowed by a family and the order in the file never
+// decides. Parse refuses the two cases this rule cannot order (the same
+// namespace twice, nested prefixes), so a policy that runs is one where
+// every lookup has exactly one answer.
 func (p *Policy) Lookup(namespace, serviceAccount string) *Grant {
 	var prefix *Grant
+	longest := -1
 	for i := range p.Grants {
 		g := &p.Grants[i]
 		if g.ServiceAccount != serviceAccount {
@@ -242,8 +276,8 @@ func (p *Policy) Lookup(namespace, serviceAccount string) *Grant {
 		if g.Namespace == namespace {
 			return g
 		}
-		if base, ok := strings.CutSuffix(g.Namespace, "*"); ok && strings.HasPrefix(namespace, base) && prefix == nil {
-			prefix = g
+		if base, ok := strings.CutSuffix(g.Namespace, "*"); ok && strings.HasPrefix(namespace, base) && len(base) > longest {
+			prefix, longest = g, len(base)
 		}
 	}
 	return prefix
