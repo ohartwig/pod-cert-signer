@@ -1,3 +1,9 @@
+## [0.4.26](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.25...v0.4.26) (2026-10-16)
+
+### :bug: Fixes
+
+* **images:** verify the release signature before packaging on GitHub ([98082af](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/98082afd6bd954a0216b36e4ad7fd1278233c554))
+
 ## [0.4.25](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.24...v0.4.25) (2026-10-16)
 
 ### :repeat: Continuous Integrations
