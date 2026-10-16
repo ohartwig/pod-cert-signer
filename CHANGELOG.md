@@ -1,3 +1,13 @@
+## [0.4.25](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.24...v0.4.25) (2026-10-16)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.39.8 ([6f80bdc](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6f80bdc66b215c75c77072b66d45624235c49dd4))
+
+### :repeat: Chores
+
+* **repo-templates:** sync ([ba68799](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/ba68799d5a2864e0102cef5ac2178a4c12cdfed7))
+
 ## [0.4.24](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.23...v0.4.24) (2026-10-16)
 
 ### :bug: Fixes
