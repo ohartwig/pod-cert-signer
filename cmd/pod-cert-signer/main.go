@@ -189,6 +189,13 @@ func initCA(ctx context.Context, args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	// flag stops at the first argument that is not a flag and leaves the
+	// rest unread. A quoting slip that turned "-dns-domain a -dns-domain b"
+	// into one word produced a CA with the default constraints and no error
+	// (2026-09-28). A trust anchor is not made from half a command line.
+	if fs.NArg() > 0 {
+		return fmt.Errorf("init: unexpected arguments %q (quoting?)", fs.Args())
+	}
 	if *cn == "" || *td == "" {
 		return errors.New("init needs -cn and -trust-domain")
 	}
