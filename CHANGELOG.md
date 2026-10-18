@@ -1,3 +1,16 @@
+## [0.4.28](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.27...v0.4.28) (2026-10-18)
+
+### :bug: Fixes
+
+* **init:** refuse arguments left after the flags ([aef5f53](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/aef5f53abe0b54b4afb627e42221cbeea7bf7a65))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.6 ([74a1c4e](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/74a1c4e6ac9e2f9e83bce65060f467f67b53d685))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.5 ([01bf381](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/01bf3812bb5ed967b6d4dfd7194becb1c468b989))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.4 ([f33af1b](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/f33af1b3e826bd3d619ee1d2f332abe924de9ffe))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to a7e960e ([98f8ba8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/98f8ba84cbf05e35cd834bf32ca6a63a9d288203))
+
 ## [0.4.27](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.26...v0.4.27) (2026-10-17)
 
 ### :repeat: Continuous Integrations
