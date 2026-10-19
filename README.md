@@ -75,6 +75,17 @@ The pod does not start until the certificate is issued. The kubelet renews it
 at the policy's `refreshAt` fraction of its lifetime and replaces the files in
 place; software that reads its certificate once has to be told to reload.
 
+If a sidecar decides when to reload by hashing the mounted files, hash the
+set of certificates in `ca.crt`, not its bytes. A projection with
+`labelSelector: {}` concatenates every ClusterTrustBundle of the signer, and
+during a CA rotation (two bundles, [design decision 3](docs/design.md#3-a-single-tier))
+the kubelet does not keep their order. A byte hash then changes without any
+certificate changing, and every change triggers a reload:
+
+```sh
+awk '/-----BEGIN/{b=""} {b=b $0} /-----END/{print b}' ca.crt | sort | sha256sum
+```
+
 ## Quick start
 
 1. **KMS key and permissions.** Create a key with spec `ECC_NIST_P256`, usage
