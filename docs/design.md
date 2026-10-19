@@ -54,7 +54,9 @@ so the two can never disagree.
 No intermediate. With leaves that live a day, an intermediate buys little and
 doubles the keys to manage. A CA rotation is an overlap: a new key and CA
 certificate, both CAs in the ClusterTrustBundle for longer than one leaf
-lifetime, then the old one removed.
+lifetime, then the old one removed. While both are published, the order in
+which a projected `ca.crt` lists them is not stable; anything that hashes the
+file to detect a change has to hash the sorted set (README, *How a pod gets a certificate*).
 
 ### 4. The Kubernetes API over `net/http`
 
