@@ -1,3 +1,24 @@
+## [0.4.29](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.28...v0.4.29) (2026-10-20)
+
+### :bug: Fixes
+
+* **deps:** update dependency registry.ole-hartwig.eu/devops/images/golang to v1.27.3 ([ee1986a](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/ee1986a4b5f2e99f9a0b34c87d63e56077819ebb))
+
+### :memo: Documentation
+
+* hash the CA set, not its bytes, when a sidecar watches ca.crt ([7da5bd7](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7da5bd77038264b3f7871755c09d8ce44c97a6f6))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.9 ([c2e49de](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c2e49de61e0885df72b5cf7aa5da80e268cd998c))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.8 ([95aab6f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/95aab6f7e665aa1031b9f970252a4f10109efb61))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 3267ade ([cdfccf9](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/cdfccf919e7b8fc69e8c4e8d71b2d39fc6005062))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.7 ([60ad2b0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/60ad2b03ecf85cf23d5cc92ec6d7a2202e2cac28))
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to d68b2b1 ([6b957d0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6b957d012852a7f769fca5709687e4ec897e59df))
+
 ## [0.4.28](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.27...v0.4.28) (2026-10-18)
 
 ### :bug: Fixes
