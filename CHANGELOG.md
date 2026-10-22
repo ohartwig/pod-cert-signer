@@ -1,3 +1,26 @@
+## [0.4.31](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.30...v0.4.31) (2026-10-22)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 6fe4e46 ([7473f8d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7473f8df85ddc2dd354bde15cc1b537f16c215e0))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.27 ([c64e05b](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c64e05b2016a7efde0514b6bb8a15c4d0e7d0cb0))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.26 ([2a00ca0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2a00ca0e5849b5f2adabc23f748d3bddd685e2da))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.25 ([7ddaf9c](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7ddaf9c5e3d7f06e2b243eeb9234b06fc1a88a86))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.24 ([240700d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/240700d0e707a964a70b5a9f835e3424d94b6a53))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.23 ([4cf1a04](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/4cf1a0424fa9df3029fabbbf3d796322f33dc4e5))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.22 ([6ec2afd](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6ec2afdc3775ba0f9715bc433de2cd3ea73fd7b9))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.21 ([6795410](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6795410e8638e543dd7e898a6b28809c127553f5))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.20 ([adcc950](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/adcc9500a00e91ade5e43147d8e5c13580b99c49))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.19 ([129b0c9](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/129b0c92b2ff7c58cbba948f2c33f4a5336700eb))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.18 ([9da074f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9da074fb2f935455da56c26ef8ac076f1d69b051))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.17 ([95d3c43](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/95d3c432e70d9c64b418fef5d718551949c08126))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.15 ([559b654](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/559b6544af065d1ae02da99d607e85d182af4867))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 65eb807 ([5aca3ad](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/5aca3ada6240b00cff130ef6698e6ca00421e6f7))
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to bc76fa3 ([d11c32c](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/d11c32c787f28ae544752f6861185966b98a65f9))
+
 ## [0.4.30](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.29...v0.4.30) (2026-10-20)
 
 ### :bug: Fixes
