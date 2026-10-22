@@ -1,3 +1,14 @@
+## [0.4.33](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.32...v0.4.33) (2026-10-22)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.30 ([076ef47](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/076ef47900d5461e3f4852316069bb3365e5fc35))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to ac72610 ([f80f26a](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/f80f26abc7eec2be47d28f4354cae1f54626cd53))
+
+### :repeat: Chores
+
+* **repo-templates:** sync ([30923e8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/30923e87a879574073204e3ec452b70abd33315c))
+
 ## [0.4.32](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.31...v0.4.32) (2026-10-22)
 
 ### :repeat: Continuous Integrations
