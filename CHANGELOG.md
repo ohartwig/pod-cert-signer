@@ -1,3 +1,14 @@
+## [0.4.32](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.31...v0.4.32) (2026-10-22)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.29 ([e13f182](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/e13f182c205ba77b087eaccace55d819fb27152c))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.28 ([3f42920](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/3f42920135cbb8cbc1f4f75e48e3231c758042db))
+
+### :repeat: Chores
+
+* **deps:** update dependency davidanson/markdownlint-cli2 to v0.24.0 ([6355487](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/63554874351d78b4f06371a1acefa79c2bfa67fb))
+
 ## [0.4.31](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.30...v0.4.31) (2026-10-22)
 
 ### :repeat: Continuous Integrations
