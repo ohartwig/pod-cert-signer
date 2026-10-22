@@ -1,3 +1,9 @@
+## [0.4.34](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.33...v0.4.34) (2026-10-22)
+
+### :repeat: Chores
+
+* **deps:** update dependency davidanson/markdownlint-cli2 to v0.24.0 ([95930f0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/95930f044671f48ce19a11ca8ac0a63257033afc))
+
 ## [0.4.33](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.32...v0.4.33) (2026-10-22)
 
 ### :repeat: Continuous Integrations
