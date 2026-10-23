@@ -1,3 +1,22 @@
+## [0.4.36](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.35...v0.4.36) (2026-10-23)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([f94c96d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/f94c96ddf0ea032525d995d30e63efaeb1af1740))
+
+### :repeat: Continuous Integrations
+
+* follow components on the rolling major tag ([8b98ca3](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8b98ca3c8d4897030c98bef9133a62f4eb7ad9bd))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.44 ([13bd51d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/13bd51dfb46e077f06d21aeb18bb9c3c0a99a9b9))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.43 ([fba2723](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/fba2723c75392bc4ac29cf71bda0f9a223144444))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.42 ([f7ae820](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/f7ae8203d99cb6732ab1a47a59e80ff1dd18c740))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.41 ([7a73b95](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7a73b957f6b9c723eb81bd54d7fc165ddf2e90cc))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.40 ([2584c04](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2584c048be963dcd673dca683f921043d8aa1eca))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.39 ([5996c66](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/5996c66681c19ea268c233b735d8d575871a9af8))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.38 ([561f9e1](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/561f9e178010a076a652716b6a4434fb1e34bc1e))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 33c75a8 ([b3848b7](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b3848b771454de4aeb6b86bbfadc3defc7225f17))
+* **deps:** update dependency devops/ci-cd-components/lint-tools to v1.40.36 ([07b8138](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/07b81385208d07577b21b6262a2da408258a15b8))
+
 ## [0.4.35](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.34...v0.4.35) (2026-10-22)
 
 ### :repeat: Continuous Integrations
