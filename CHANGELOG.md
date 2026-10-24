@@ -1,3 +1,13 @@
+## [0.4.38](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.37...v0.4.38) (2026-10-24)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 68ef577 ([c69b573](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c69b573946760d14dd2fb04e25a2ec8592d46c26))
+
+### :repeat: Chores
+
+* **deps:** update cgr.dev/chainguard/wolfi-base:latest docker digest to 360896e ([b2cbcfb](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b2cbcfb576cdef3a244d722cb57a18f98220126d))
+
 ## [0.4.37](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.36...v0.4.37) (2026-10-23)
 
 ### :repeat: Chores
