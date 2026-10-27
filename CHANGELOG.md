@@ -1,3 +1,9 @@
+## [0.4.41](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.40...v0.4.41) (2026-10-27)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([393be67](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/393be67b664fc26bfada713a4d99265a1ec242cc))
+
 ## [0.4.40](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.39...v0.4.40) (2026-10-27)
 
 ### :repeat: Continuous Integrations
