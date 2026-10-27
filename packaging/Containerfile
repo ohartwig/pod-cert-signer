@@ -13,7 +13,7 @@
 # server and KMS. The base is Chainguard's public wolfi-base, pinned by
 # digest: an image that cannot say which base it was built on cannot be
 # rebuilt.
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:0feab531471d2edfcca55f18883441cb7df598e724fa2dedf9985273f532eed7
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:0b179206ab162b12a43bacea1b525a4023e0272005c92d08555c61b1beaedc40
 
 # Set by BuildKit for each leg of a multi-platform build.
 ARG TARGETARCH
