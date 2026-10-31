@@ -1,3 +1,35 @@
+## [0.4.46](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.45...v0.4.46) (2026-10-31)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([13e80d5](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/13e80d513dc65856c0bdf9a14e7dae0c0e7ddff3))
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to e8b6a39 ([409414e](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/409414ecc2c929a41164d170642c8e5280bed27d))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to b2e48d4 ([468aae1](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/468aae1763b89dff702c9cd0da9ee4e24203a491))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 21980f7 ([1ae23a9](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/1ae23a907d0e65ac6110e3b1b73811e5f59614ea))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to ac42c12 ([2e2f3d8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2e2f3d829185bc960db175504f7af19c10e84d9a))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to e67fe56 ([b84da1d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b84da1dc45ad45849d85e5881604fb5e5d73f651))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 34e989e ([b0a6fdd](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b0a6fdd66c1c47ae1ab69907594c8eeecb216fc6))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 8ad383a ([fcd9e95](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/fcd9e9565ffc40ea3d5fa832402ecffc9ea75e42))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 063226d ([7bb753e](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7bb753ee6d6136bc55f03291cfc8aa0f78d2fa4d))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 46ec3bc ([5badb7d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/5badb7db074102eef809d2592522e172ca69b101))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 64fa292 ([678f5a8](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/678f5a89f2dcebe4d27a60000bb18d13db48f113))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 615c26e ([0b66c23](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/0b66c238b02eccedf44878f1e7225c2a026fcd04))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 74af4dc ([5c04a41](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/5c04a4103e259163f2036640c2f15e30f1414bdb))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 3c784ca ([c79ecd9](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c79ecd986f03aaeb62760b243a0a5790d1f15dcd))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 8b7f46d ([a8921ff](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/a8921ff8b195e8afc03156ea06b051fe99f947d2))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 0a06826 ([9188054](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9188054a05ec2b89cd1e919d8a2fc0c38ea6a7cc))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 8c17033 ([a5afab2](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/a5afab21131f2aea5076c4352f01a9975feff0a7))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 7756364 ([66702b0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/66702b0d019fb587e593cc1b79c1e4d5f0cd516a))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 843054d ([cdb4a36](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/cdb4a367670bc116f22e9089acfc5544512be4ea))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 3b04480 ([b2fad37](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b2fad37ae881f5b06e42f68c71bb98771f4a25a7))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 0cb8097 ([9a305c4](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9a305c4054c70c11c9ade90c5fce8393443f1b69))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 95c5a29 ([2cc59c3](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2cc59c3b4ad77fecc619463f70cbaa97ab421ec6))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 9e0d7f2 ([03f5334](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/03f5334870ee7d251c4645716e33891a42cf979e))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 7a3154b ([8f8cfa3](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8f8cfa394c15194f8bc0c917535dadac7fa9d612))
+
 ## [0.4.45](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.44...v0.4.45) (2026-10-29)
 
 ### :repeat: Continuous Integrations
