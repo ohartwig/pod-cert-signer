@@ -9,31 +9,47 @@
 # built a second time here would be a second artefact under the release's
 # name, with nobody's signature on it.
 #
-# Static Go, so the image needs nothing but CA certificates, for the API
-# server and KMS. The base is Chainguard's public wolfi-base, pinned by
-# digest: an image that cannot say which base it was built on cannot be
-# rebuilt.
-FROM cgr.dev/chainguard/wolfi-base:latest@sha256:771146c2dfc880902a185f060c3db5571473c46b267edd98c3119c83068dfb61
+# Static Go (CGO_ENABLED=0 in build:binaries), so the image needs nothing but
+# CA certificates, for the API server and KMS. Two stages: openSUSE
+# Tumbleweed's public base image supplies the CA bundle and a shell for the
+# smoke test, and the image itself is scratch with two files in it - the
+# bundle and the binary. No shell, no package manager, no package database.
+# The base is pinned by the digest of its multi-arch index: an image that
+# cannot say which base it was built on cannot be rebuilt.
+FROM registry.opensuse.org/opensuse/tumbleweed:latest@sha256:dd00290e8ba09c8d9a24575cf102572bdae0368da351377f04522723d5103333 AS build
 
 # Set by BuildKit for each leg of a multi-platform build.
 ARG TARGETARCH
 
-USER 0
-RUN apk add --no-cache ca-certificates-bundle
+# ca-certificates-mozilla is the trust store. update-ca-certificates, run by
+# the packages' scriptlets, generates /var/lib/ca-certificates/ca-bundle.pem
+# from it; no package owns that file, hence the check.
+RUN zypper --non-interactive install --no-recommends ca-certificates ca-certificates-mozilla \
+ && zypper --non-interactive clean --all \
+ && test -s /var/lib/ca-certificates/ca-bundle.pem
 
 COPY dist/pod-cert-signer-linux-${TARGETARCH} /usr/local/bin/pod-cert-signer
 
 # Smoke test: the binary runs on this architecture and knows its commands.
 # Without arguments it prints its usage and exits 2; anything else (exec
-# format error, a missing loader) is a broken image.
+# format error, a missing loader) is a broken image. It runs here, not in the
+# final image, because that one has no shell to run it with; the binary is
+# copied unchanged, and a static binary needs nothing from this stage.
 RUN chmod 0755 /usr/local/bin/pod-cert-signer \
  && set +e; /usr/local/bin/pod-cert-signer > /tmp/out 2>&1; rc=$?; set -e; \
     grep -q 'usage: pod-cert-signer run|init' /tmp/out && [ "$rc" -eq 2 ] \
     || { echo "smoke: pod-cert-signer did not start (rc=$rc)"; cat /tmp/out; exit 1; }; \
     rm -f /tmp/out
 
-# Non-root. The example Deployment adds readOnlyRootFilesystem and drops
-# every capability.
+FROM scratch
+
+# The bundle as a regular file (Tumbleweed's /etc/ssl/ca-bundle.pem is a
+# symlink to it), at the path Go's crypto/x509 reads first on Linux.
+COPY --from=build /var/lib/ca-certificates/ca-bundle.pem /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /usr/local/bin/pod-cert-signer /usr/local/bin/pod-cert-signer
+
+# Non-root, numeric: scratch has no /etc/passwd to resolve a name in. The
+# example Deployment adds readOnlyRootFilesystem and drops every capability.
 USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/pod-cert-signer"]
 CMD ["run"]
