@@ -186,7 +186,7 @@ upload:package-registry:
     - build:binaries
     - job: sign:artifact:dist/SHA256SUMS
       optional: true
-  image: registry.ole-hartwig.eu/devops/images/curl:8.21@sha256:d0d4eef166ece18d620f058fbdcecd11bbef2ff327db71dc12a1313539c7a8ce
+  image: registry.ole-hartwig.eu/devops/images/curl:8.21@sha256:45b04c4b9d062099e95c59b8d23acd9e1f006e66a3a4ab28d3b0aa6c8df29a4a
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
   variables:
