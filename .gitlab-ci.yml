@@ -131,6 +131,10 @@ include:
 lint:reuse:
   allow_failure: false
 
+# Signed for this pipeline's upload; from here to the tag nothing is cancelled.
+sign:artifact:dist/SHA256SUMS:
+  interruptible: false
+
 # Extended, not replaced. The count assertion is the point: a suite that runs
 # zero tests and a suite that does not run are both green otherwise.
 test:go:
@@ -181,6 +185,10 @@ build:binaries:
 
 upload:package-registry:
   stage: build
+  # The first write before the tag. Once it has started, auto-cancel leaves
+  # this pipeline alone (on_new_commit: conservative), so a newer push can no
+  # longer cancel `release` after the package is up.
+  interruptible: false
   needs:
     - version
     - build:binaries
