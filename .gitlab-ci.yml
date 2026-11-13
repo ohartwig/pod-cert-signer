@@ -56,6 +56,9 @@ include:
       # upload:package-registry below - so the lane starts only once the
       # binaries it will look up are published. tools/fastlane checks both.
       trigger-pinup: 'true'
+      # The package is uploaded before `release` tags it. A number that is in
+      # the registry without a tag is burnt, not retried (release-tools 2.6.317).
+      generic-packages: 'pod-cert-signer'
   # A detached cosign signature over SHA256SUMS, KMS key via the CI signing
   # role (its trust covers devops/* on main).
   - component: ${CI_SERVER_HOST}/devops/ci-cd-components/build-provenance/sign-artifact@2
