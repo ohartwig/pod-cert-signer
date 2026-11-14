@@ -1,3 +1,17 @@
+## [0.4.52](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.51...v0.4.52) (2026-11-14)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to b3e8d34 ([92c054f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/92c054f75675924fcd4cab6c15cc5c519f76f81c))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to b2a448d ([c06c4b1](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c06c4b1db2048cf13ee1cab08cfe71f0f7633aa2))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to e7dd426 ([08bb07f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/08bb07f4b18caaad54e972576a12a778e16fd661))
+* skip package numbers burnt by an interrupted release ([faabaa4](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/faabaa4d2a55056ad166001ce907e2e0568f5167))
+* make the release uncancellable from the signature on ([faf05ec](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/faf05ec51c38283eece85435fe283d61c388600c))
+
+### :repeat: Chores
+
+* **deps:** update registry.opensuse.org/opensuse/tumbleweed:latest docker digest to 3c0ecbc ([08cdafd](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/08cdafde5596d2cb83b1787d30cc34f9defbb4e1))
+
 ## [0.4.51](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.50...v0.4.51) (2026-11-13)
 
 ### :bug: Fixes
