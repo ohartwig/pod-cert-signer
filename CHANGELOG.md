@@ -1,3 +1,20 @@
+## [0.4.54](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.53...v0.4.54) (2026-11-16)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 5558d7c ([7f96e5d](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7f96e5d427d85512725e88873401c8ab6062fe55))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 6993bd1 ([5ce94b3](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/5ce94b3ef2ff4a8eae24e8ef87c4533211ef0a55))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 36856cb ([2ee5f62](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/2ee5f62f8e805bdad2c2612ee4b555f31d03ce97))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 9200c23 ([9a9d823](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/9a9d823114001e29b532ec623f2e6aff608f811e))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 56a45eb ([d4446b7](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/d4446b71bc45f710a049954324e94701143de14b))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 240e5a6 ([6570397](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/65703975d33eda78ad71419a7357fbf608c78fb3))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 6089896 ([c86bf47](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/c86bf470533023a91e5c75e694db24cea9e8a62e))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 6a18c10 ([8b00899](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8b00899850505791be3cba93da35ecb0d4fff101))
+
+### :repeat: Chores
+
+* **deps:** update dependency registry.ole-hartwig.eu/devops/images/franken-php/ci to v3.2.246-8.5 ([7def460](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/7def460a7809912c1a706483efbbc62a0b1cbdeb))
+
 ## [0.4.53](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.52...v0.4.53) (2026-11-15)
 
 ### :repeat: Chores
