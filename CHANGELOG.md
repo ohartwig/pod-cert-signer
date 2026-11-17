@@ -1,3 +1,13 @@
+## [0.4.56](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.55...v0.4.56) (2026-11-17)
+
+### :bug: Fixes
+
+* **deps:** update aws-sdk-go-v2 monorepo ([f75dbba](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/f75dbba847d160503b0bfee2e38ec0a5bb131e38))
+
+### :repeat: Chores
+
+* **deps:** update registry.opensuse.org/opensuse/tumbleweed:latest docker digest to 589b56b ([58f90d2](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/58f90d2de28e096192f86a74dabeb5631b819894))
+
 ## [0.4.55](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.54...v0.4.55) (2026-11-17)
 
 ### :repeat: Continuous Integrations
