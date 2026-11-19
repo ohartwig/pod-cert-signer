@@ -1,3 +1,9 @@
+## [0.4.61](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.60...v0.4.61) (2026-11-19)
+
+### :bug: Fixes
+
+* **deps:** update module github.com/aws/aws-sdk-go-v2/config to v1.33.20 ([ec28157](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/ec28157db64603b6ea62e9accc4186df2085d325))
+
 ## [0.4.60](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.59...v0.4.60) (2026-11-19)
 
 ### :repeat: Chores
