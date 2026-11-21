@@ -1,3 +1,14 @@
+## [0.4.66](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.65...v0.4.66) (2026-11-21)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 48911a6 ([b1868fd](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b1868fd26b7c62471d0671c6244e44befc8baa6b))
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to f6be293 ([b0fa0c1](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b0fa0c16610885ccff41b6b0604c9cf1ae72ac17))
+
+### :repeat: Chores
+
+* **deps:** update registry.opensuse.org/opensuse/tumbleweed:latest docker digest to 174ddd4 ([6eb6022](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/6eb602202bc43a643cfc28f3c32196ef0742016a))
+
 ## [0.4.65](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.64...v0.4.65) (2026-11-20)
 
 ### :bug: Fixes
