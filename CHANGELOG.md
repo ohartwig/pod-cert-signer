@@ -1,3 +1,13 @@
+## [0.4.70](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.69...v0.4.70) (2026-11-23)
+
+### :repeat: Continuous Integrations
+
+* **deps:** update registry.ole-hartwig.eu/devops/images/curl:8.21 docker digest to 3e5d147 ([669d15f](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/669d15f492233be0d09afdab7575bb5b0acd7e66))
+
+### :repeat: Chores
+
+* **deps:** update lefthook hook images ([b5cc0e7](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b5cc0e7ae680daea25a4ca174e5fc591944bbdcb))
+
 ## [0.4.69](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.68...v0.4.69) (2026-11-22)
 
 ### :repeat: Chores
