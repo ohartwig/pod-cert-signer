@@ -1,3 +1,10 @@
+## [0.4.71](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.70...v0.4.71) (2026-11-23)
+
+### :repeat: Chores
+
+* **deps:** update registry.opensuse.org/opensuse/tumbleweed:latest docker digest to 3d03391 ([bde67f0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/bde67f004c505c74fa4e287134c22d9912a6658a))
+* **deps:** update dependency registry.ole-hartwig.eu/devops/images/franken-php/ci to v3.2.365-8.5 ([8908fc0](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/8908fc077f8206fd56f57f291279972a7f4bb430))
+
 ## [0.4.70](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.69...v0.4.70) (2026-11-23)
 
 ### :repeat: Continuous Integrations
