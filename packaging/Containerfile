@@ -20,7 +20,7 @@
 # This layout replaced Chainguard's wolfi-base in !356 (2026-11-05). That
 # change was typed build(image), which releases nothing, so the image stayed
 # unpublished until a fix(image) commit cut the next release.
-FROM registry.opensuse.org/opensuse/tumbleweed:latest@sha256:1c95c1c8993a2d12e82d4f596b3eef0c1de799ebad198919dee79d3abb8b7ae1 AS build
+FROM registry.opensuse.org/opensuse/tumbleweed:latest@sha256:fed8c12527c3152ef6eeb8541520d15f3c23115b95adaf59a063a19a413ef28a AS build
 
 # Set by BuildKit for each leg of a multi-platform build.
 ARG TARGETARCH
