@@ -1,3 +1,9 @@
+## [0.4.81](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.80...v0.4.81) (2026-11-27)
+
+### :repeat: Chores
+
+* **deps:** update registry.opensuse.org/opensuse/tumbleweed:latest docker digest to a288bdb ([b8c1330](https://git.ole-hartwig.eu/devops/pod-cert-signer/commit/b8c133098fd85f48f5203a332dfdb480224c788a))
+
 ## [0.4.80](https://git.ole-hartwig.eu/devops/pod-cert-signer/compare/v0.4.79...v0.4.80) (2026-11-27)
 
 ### :repeat: Chores
